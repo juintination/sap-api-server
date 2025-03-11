@@ -31,9 +31,13 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (request.getMethod().equals("POST")) {
             if (path.equals("/api/users/") || path.startsWith("/api/auth/")) {
                 return true;
+            } else if (path.equals("/api/images/")) {
+                return true;
             }
         } else if (request.getMethod().equals("GET")) {
             if (path.startsWith("/api/users/")) {
+                return true;
+            } else if (path.startsWith("/api/images/")) {
                 return true;
             } else if (path.equals("/") || path.equals("/docs")) {
                 return true;

@@ -38,3 +38,8 @@ out/
 
 ### Java Version ###
 .java-version
+
+### upload ###
+!upload/
+upload/*
+!upload/default.png
