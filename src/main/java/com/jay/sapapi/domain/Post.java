@@ -4,12 +4,14 @@ import com.jay.sapapi.domain.common.TimeStampedEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "writer")
+@ToString(exclude = {"writer", "comments" ,"hearts"})
 public class Post extends TimeStampedEntity {
 
     @Id
@@ -28,6 +30,12 @@ public class Post extends TimeStampedEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writerId", nullable = false)
     private Member writer;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Heart> hearts;
 
     public void changeTitle(String title) {
         this.title = title;

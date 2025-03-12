@@ -9,7 +9,13 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p, w FROM Post p LEFT JOIN p.writer w WHERE p.postId = :postId")
+    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h.member) " +
+            "FROM Post p " +
+            "LEFT JOIN p.writer w " +
+            "LEFT JOIN Comment c ON c.post = p " +
+            "LEFT JOIN Heart h ON h.post = p " +
+            "WHERE p.postId = :postId " +
+            "GROUP BY p, w")
     Object getPostByPostId(@Param("postId") Long postId);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.writer")

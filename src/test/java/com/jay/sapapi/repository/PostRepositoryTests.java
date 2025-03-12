@@ -4,6 +4,8 @@ import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.domain.Post;
+import com.jay.sapapi.domain.Comment;
+import com.jay.sapapi.domain.Heart;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +29,12 @@ public class PostRepositoryTests {
     private PostRepository postRepository;
 
     @Autowired
+    private HeartRepository heartRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
@@ -38,9 +46,13 @@ public class PostRepositoryTests {
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
         Assertions.assertNotNull(postRepository, "PostRepository should not be null");
+        Assertions.assertNotNull(commentRepository, "CommentRepository should not be null");
+        Assertions.assertNotNull(heartRepository, "HeartRepository should not be null");
 
         log.info(memberRepository.getClass().getName());
         log.info(postRepository.getClass().getName());
+        log.info(commentRepository.getClass().getName());
+        log.info(heartRepository.getClass().getName());
     }
 
     @Test
@@ -54,12 +66,27 @@ public class PostRepositoryTests {
                 .memberRole(MemberRole.USER)
                 .build());
 
-        postRepository.save(Post.builder()
+        Post savedPost = postRepository.save(Post.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
                 .writer(member)
                 .postImageUrl(faker.internet().image())
                 .build());
+
+        for (int i = 0; i < 10; i++) {
+            Comment comment = Comment.builder()
+                    .post(savedPost)
+                    .commenter(member)
+                    .content(faker.lorem().sentence())
+                    .build();
+            commentRepository.save(comment);
+        }
+
+        Heart heart = Heart.builder()
+                .post(savedPost)
+                .member(member)
+                .build();
+        heartRepository.save(heart);
 
     }
 
@@ -81,6 +108,8 @@ public class PostRepositoryTests {
         Object result = postRepository.getPostByPostId(postId);
         Object[] arr = (Object[]) result;
         log.info(Arrays.toString(arr));
+        log.info("Comments Count: " + arr[2]);
+        log.info("Hearts Count: " + arr[3]);
     }
 
     @Test
