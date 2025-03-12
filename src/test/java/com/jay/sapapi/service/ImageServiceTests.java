@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,6 +66,24 @@ public class ImageServiceTests {
         Map<String, String> result = imageService.viewImage(fileName);
         Assertions.assertNotNull(result);
         log.info("Result: " + result);
+    }
+
+    @Test
+    public void testRemove() {
+        imageService.removeImage(fileName);
+    }
+
+    @AfterAll
+    public void cleanup() throws IOException {
+        Path directory = Paths.get("upload/test");
+        if (Files.exists(directory)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+                for (Path entry : stream) {
+                    Files.delete(entry);
+                }
+            }
+            Files.delete(directory);
+        }
     }
 
 }
