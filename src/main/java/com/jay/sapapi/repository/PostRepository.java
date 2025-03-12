@@ -18,7 +18,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "GROUP BY p, w")
     Object getPostByPostId(@Param("postId") Long postId);
 
-    @Query("SELECT p FROM Post p JOIN FETCH p.writer")
-    List<Post> findAllWithWriter();
+    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h.member) " +
+            "FROM Post p " +
+            "LEFT JOIN p.writer w " +
+            "LEFT JOIN Comment c ON c.post = p " +
+            "LEFT JOIN Heart h ON h.post = p " +
+            "GROUP BY p, w")
+    List<Object> getAllPosts();
 
 }

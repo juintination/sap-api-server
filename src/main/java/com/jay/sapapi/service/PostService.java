@@ -24,7 +24,7 @@ public interface PostService {
 
     Post dtoToEntity(PostDTO postDTO);
 
-    default PostDTO entityToDTO(Post post, Member writer) {
+    default PostDTO entityToDTO(Post post, Member writer, int commentCount, int likeCount) {
         return PostDTO.builder()
                 .postId(post.getPostId())
                 .writerId(writer.getUserId())
@@ -34,6 +34,8 @@ public interface PostService {
                 .content(post.getContent())
                 .viewCount(post.getViewCount())
                 .postImageUrl(post.getPostImageUrl())
+                .commentCount(commentCount)
+                .likeCount(likeCount)
                 .regDate(post.getRegDate())
                 .modDate(post.getModDate())
                 .build();

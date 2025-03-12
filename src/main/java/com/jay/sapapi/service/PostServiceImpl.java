@@ -27,7 +27,7 @@ public class PostServiceImpl implements PostService {
             throw new NoSuchElementException("postNotFound");
         }
         Object[] arr = (Object[]) result;
-        return entityToDTO((Post) arr[0], (Member) arr[1]);
+        return entityToDTO((Post) arr[0], (Member) arr[1], ((Number) arr[2]).intValue(), ((Number) arr[3]).intValue());
     }
 
     @Override
@@ -40,8 +40,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDTO> getList() {
-        List<Post> postList = postRepository.findAllWithWriter();
-        return postList.stream().map(post -> entityToDTO(post, post.getWriter())).toList();
+        List<Object> postList = postRepository.getAllPosts();
+        return postList.stream().map(arr -> {
+            Object[] entityArr = (Object[]) arr;
+            return entityToDTO((Post) entityArr[0], (Member) entityArr[1],
+                    ((Number) entityArr[2]).intValue(), ((Number) entityArr[3]).intValue());
+        }).toList();
     }
 
     @Override

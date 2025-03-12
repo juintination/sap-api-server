@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -123,11 +124,14 @@ public class PostRepositoryTests {
     }
 
     @Test
-    public void testReadAllWithWriter() {
-        log.info("Read all posts with writer");
-        postRepository.findAllWithWriter().forEach(post -> {
-            log.info("Post: " + post);
-            log.info("Writer: " + post.getWriter());
+    public void testReadAllWithoutTransactional() {
+        log.info("Read all posts without @Transactional annotation");
+        List<Object> result = postRepository.getAllPosts();
+        result.forEach(arr -> {
+            Object[] entity = (Object[]) arr;
+            log.info(Arrays.toString(entity));
+            log.info("Comments Count: " + entity[2]);
+            log.info("Hearts Count: " + entity[3]);
         });
     }
 

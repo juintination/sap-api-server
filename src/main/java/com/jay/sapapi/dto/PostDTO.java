@@ -19,6 +19,8 @@ public class PostDTO {
 
     private Long viewCount;
 
+    private int commentCount, likeCount;
+
     private String postImageUrl;
 
     private String writerNickname, writerEmail;
