@@ -25,6 +25,8 @@ public class Member extends TimeStampedEntity {
     @Column(unique = true)
     private String nickname;
 
+    private String profileImageUrl;
+
     @Builder.Default
     private MemberRole memberRole = MemberRole.USER;
 
@@ -42,6 +44,10 @@ public class Member extends TimeStampedEntity {
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    public void changeProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
 }

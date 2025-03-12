@@ -24,6 +24,8 @@ public class MemberDTO {
 
     private String nickname;
 
+    private String profileImageUrl;
+
     private MemberRole role;
 
     private LocalDateTime regDate, modDate;

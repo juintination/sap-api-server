@@ -61,7 +61,6 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-        // 닉네임 수정 시 검증
         if (memberDTO.getNickname() != null && !memberDTO.getNickname().isEmpty()) {
             if (!member.getNickname().equals(memberDTO.getNickname()) &&
                     memberRepository.existsByNickname(memberDTO.getNickname())) {
@@ -72,6 +71,10 @@ public class MemberServiceImpl implements MemberService {
 
         if (memberDTO.getPassword() != null && !memberDTO.getPassword().isEmpty()) {
             member.changePassword(passwordEncoder.encode(memberDTO.getPassword()));
+        }
+
+        if (memberDTO.getProfileImageUrl() != null && !memberDTO.getProfileImageUrl().isEmpty()) {
+            member.changeProfileImageUrl(memberDTO.getProfileImageUrl());
         }
 
         memberRepository.save(member);
@@ -101,6 +104,7 @@ public class MemberServiceImpl implements MemberService {
                 .email(memberDTO.getEmail())
                 .password(memberDTO.getPassword() != null ? passwordEncoder.encode(memberDTO.getPassword()) : null)
                 .nickname(memberDTO.getNickname())
+                .profileImageUrl(memberDTO.getProfileImageUrl())
                 .memberRole(memberDTO.getRole() != null ? memberDTO.getRole() : MemberRole.USER)
                 .build();
     }

@@ -24,6 +24,7 @@ public interface MemberService {
                 .userId(member.getUserId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
+                .profileImageUrl(member.getProfileImageUrl())
                 .role(member.getMemberRole())
                 .regDate(member.getRegDate())
                 .modDate(member.getModDate())
