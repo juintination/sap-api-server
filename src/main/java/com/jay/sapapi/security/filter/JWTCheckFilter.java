@@ -59,6 +59,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             long userId = Long.parseLong(claims.get("userId").toString());
             String email = (String) claims.get("email");
             String nickname = (String) claims.get("nickname");
+            String profileImageUrl = (String) claims.get("profileImageUrl");
             String role = (String) claims.get("role");
             MemberRole memberRole = MemberRole.valueOf(role);
 
@@ -66,6 +67,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
                     .userId(userId)
                     .email(email)
                     .nickname(nickname)
+                    .profileImageUrl(profileImageUrl)
                     .memberRole(memberRole)
                     .build();
             log.info("Member: " + member);

@@ -67,6 +67,7 @@ public class CustomUserDetails implements UserDetails {
         dataMap.put("userId", member.getUserId());
         dataMap.put("email", member.getEmail());
         dataMap.put("nickname", member.getNickname());
+        dataMap.put("profileImageUrl", member.getProfileImageUrl());
         dataMap.put("role", member.getMemberRole().toString());
         return dataMap;
     }
