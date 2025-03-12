@@ -4,12 +4,14 @@ import com.jay.sapapi.domain.common.TimeStampedEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "posts")
 public class Member extends TimeStampedEntity {
 
     @Id
@@ -29,6 +31,9 @@ public class Member extends TimeStampedEntity {
 
     @Builder.Default
     private MemberRole memberRole = MemberRole.USER;
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
 
     public void changeRole(MemberRole memberRole) {
         this.memberRole = memberRole;
