@@ -38,6 +38,8 @@ public class CommentRepositoryTests {
 
     private final Faker faker = new Faker();
 
+    private Long postId, commentId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
@@ -66,6 +68,7 @@ public class CommentRepositoryTests {
                 .writer(writer)
                 .postImageUrl(faker.internet().image())
                 .build());
+        postId = savedPost.getPostId();
 
         for (int i = 0; i < 5; i++) {
             Member commenter = memberRepository.save(Member.builder()
@@ -75,11 +78,11 @@ public class CommentRepositoryTests {
                     .memberRole(MemberRole.USER)
                     .build());
 
-            commentRepository.save(Comment.builder()
+            commentId = commentRepository.save(Comment.builder()
                     .post(savedPost)
                     .commenter(commenter)
                     .content(faker.lorem().sentence())
-                    .build());
+                    .build()).getCommentId();
         }
 
     }
@@ -87,7 +90,6 @@ public class CommentRepositoryTests {
     @Test
     @Transactional
     public void testRead() {
-        Long commentId = 1L;
         Optional<Comment> result = commentRepository.findById(commentId);
         Comment comment = result.orElseThrow();
 
@@ -98,31 +100,7 @@ public class CommentRepositoryTests {
 
     @Test
     public void testReadWithoutTransactional() {
-        Long commentId = 1L;
         Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
-        if (result.isEmpty()) {
-            Member member = memberRepository.save(Member.builder()
-                    .email(faker.internet().emailAddress())
-                    .password(passwordEncoder.encode(faker.internet().password()))
-                    .nickname(faker.name().name())
-                    .memberRole(MemberRole.USER)
-                    .build());
-
-            Post savedPost = postRepository.save(Post.builder()
-                    .title(faker.book().title())
-                    .content(faker.lorem().sentence())
-                    .writer(member)
-                    .postImageUrl(faker.internet().image())
-                    .build());
-
-            Comment comment = commentRepository.save(Comment.builder()
-                    .post(savedPost)
-                    .commenter(member)
-                    .content(faker.lorem().sentence())
-                    .build());
-            result = commentRepository.getCommentByCommentId(comment.getCommentId());
-        }
-
         Comment comment = result.orElseThrow();
         Assertions.assertNotNull(comment);
 
@@ -132,7 +110,6 @@ public class CommentRepositoryTests {
 
     @Test
     public void testReadListByPost() {
-        Long postId = 1L;
         List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().postId(postId).build());
         Assertions.assertNotNull(comments);
         comments.forEach(log::info);
@@ -140,16 +117,14 @@ public class CommentRepositoryTests {
 
     @Test
     public void testDelete() {
-        Long id = 1L;
-        commentRepository.deleteById(id);
-        Optional<Comment> result = commentRepository.findById(id);
+        commentRepository.deleteById(commentId);
+        Optional<Comment> result = commentRepository.findById(commentId);
 
         Assertions.assertEquals(result, Optional.empty());
     }
 
     @Test
     public void testDeleteByPost() {
-        Long postId = 1L;
         List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().postId(postId).build());
         postRepository.deleteById(postId);
 

@@ -25,6 +25,8 @@ public class MemberServiceTests {
 
     private final Faker faker = new Faker();
 
+    private Long userId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(memberService, "MemberService should not be null");
@@ -43,7 +45,6 @@ public class MemberServiceTests {
                 .role(MemberRole.USER)
                 .build();
 
-        Long userId = null;
         try {
             userId = memberService.register(memberDTO);
         } catch (CustomValidationException e) {
@@ -53,21 +54,16 @@ public class MemberServiceTests {
                 userId = memberService.register(memberDTO);
             }
         }
-
-        log.info("userId: " + userId);
-        log.info(memberService.get(userId));
     }
 
     @Test
     public void testGet() {
-        Long userId = 1L;
         MemberDTO memberDTO = memberService.get(userId);
         log.info(memberDTO);
     }
 
     @Test
     public void testModify() {
-        Long userId = 1L;
         MemberDTO memberDTO = MemberDTO.builder()
                 .userId(userId)
                 .email("Modified@example.com")
@@ -83,7 +79,6 @@ public class MemberServiceTests {
 
     @Test
     public void testRemove() {
-        Long userId = 1L;
         memberService.remove(userId);
         Assertions.assertThrows(NoSuchElementException.class, () -> memberService.get(userId));
     }

@@ -28,6 +28,8 @@ public class PostServiceTests {
 
     private final Faker faker = new Faker();
 
+    private Long postId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(postService, "PostService should not be null");
@@ -49,7 +51,7 @@ public class PostServiceTests {
                 .build();
         Long userId = memberService.register(memberDTO);
 
-        postService.register(PostDTO.builder()
+        postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
                 .writerId(userId)
@@ -59,7 +61,6 @@ public class PostServiceTests {
 
     @Test
     public void testGet() {
-        Long postId = 1L;
         PostDTO postDTO = postService.get(postId);
         Assertions.assertNotNull(postDTO);
         log.info("PostDTO: " + postDTO);
@@ -68,7 +69,6 @@ public class PostServiceTests {
 
     @Test
     public void testIncreaseViewCount() {
-        Long postId = 1L;
         postService.incrementViewCount(postId);
         PostDTO postDTO = postService.get(postId);
         Assertions.assertEquals(1, postDTO.getViewCount());
@@ -84,7 +84,6 @@ public class PostServiceTests {
 
     @Test
     public void testModify() {
-        Long postId = 1L;
         PostDTO postDTO = PostDTO.builder()
                 .postId(postId)
                 .title("ModifiedTitle")
@@ -103,7 +102,6 @@ public class PostServiceTests {
 
     @Test
     public void testRemove() {
-        Long postId = 1L;
         postService.remove(postId);
         Assertions.assertThrows(RuntimeException.class, () -> postService.get(postId));
     }

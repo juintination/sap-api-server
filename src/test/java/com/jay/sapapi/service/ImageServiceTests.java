@@ -5,6 +5,7 @@ import com.jay.sapapi.dto.ImageType;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ public class ImageServiceTests {
     @Autowired
     private ImageService imageService;
 
+    private String fileName;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(imageService, "ImageService should not be null");
@@ -33,6 +36,7 @@ public class ImageServiceTests {
     }
 
     @Test
+    @BeforeEach
     public void testRegister() throws IOException {
 
         Path path = Paths.get("upload/default.png");
@@ -50,16 +54,16 @@ public class ImageServiceTests {
                 .file(mockFile)
                 .imageType(ImageType.PROFILE_IMAGE)
                 .build();
-        String fileName = imageService.registerImage(imageDTO);
-        log.info(fileName);
+        fileName = imageService.registerImage(imageDTO);
+        log.info("File name: " + fileName);
 
     }
 
     @Test
     public void testGet() throws IOException {
-        Map<String, String> result = imageService.viewImage("../default.png");
+        Map<String, String> result = imageService.viewImage(fileName);
         Assertions.assertNotNull(result);
-        log.info(result);
+        log.info("Result: " + result);
     }
 
 }

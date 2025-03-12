@@ -43,6 +43,8 @@ public class PostRepositoryTests {
 
     private final Faker faker = new Faker();
 
+    private Long postId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
@@ -73,6 +75,7 @@ public class PostRepositoryTests {
                 .writer(member)
                 .postImageUrl(faker.internet().image())
                 .build());
+        postId = savedPost.getPostId();
 
         for (int i = 0; i < 10; i++) {
             Comment comment = Comment.builder()
@@ -94,7 +97,6 @@ public class PostRepositoryTests {
     @Test
     @Transactional
     public void testRead() {
-        Long postId = 1L;
         Optional<Post> result = postRepository.findById(postId);
         Post post = result.orElseThrow();
 
@@ -105,7 +107,6 @@ public class PostRepositoryTests {
 
     @Test
     public void testReadPostByPostId() {
-        Long postId = 1L;
         Object result = postRepository.getPostByPostId(postId);
         Object[] arr = (Object[]) result;
         log.info(Arrays.toString(arr));
@@ -137,7 +138,6 @@ public class PostRepositoryTests {
 
     @Test
     public void testDelete() {
-        Long postId = 1L;
         postRepository.deleteById(postId);
         Optional<Post> result = postRepository.findById(postId);
 

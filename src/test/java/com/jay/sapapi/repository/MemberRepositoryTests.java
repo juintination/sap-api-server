@@ -30,6 +30,8 @@ public class MemberRepositoryTests {
 
     private final Faker faker = new Faker();
 
+    private Long userId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
@@ -47,14 +49,13 @@ public class MemberRepositoryTests {
                 .memberRole(MemberRole.USER)
                 .build();
         if (!memberRepository.existsByEmail(email)) {
-            memberRepository.save(member);
+            userId = memberRepository.save(member).getUserId();
         }
     }
 
     @Test
     @Transactional
     public void testRead() {
-        Long userId = 1L;
         Optional<Member> member = memberRepository.findById(userId);
         if (member.isPresent()) {
             log.info(member);

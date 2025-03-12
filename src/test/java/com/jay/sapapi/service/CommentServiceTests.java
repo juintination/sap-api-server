@@ -33,6 +33,8 @@ public class CommentServiceTests {
 
     private final Faker faker = new Faker();
 
+    private Long postId, commentId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(postService, "PostService should not be null");
@@ -56,7 +58,7 @@ public class CommentServiceTests {
                 .build();
         Long userId = memberService.register(writerDTO);
 
-        Long postId = postService.register(PostDTO.builder()
+        postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
                 .writerId(userId)
@@ -71,7 +73,7 @@ public class CommentServiceTests {
                     .build();
             Long commenterId = memberService.register(memberDTO);
 
-            commentService.register(CommentDTO.builder()
+            commentId = commentService.register(CommentDTO.builder()
                     .postId(postId)
                     .commenterId(commenterId)
                     .content(faker.lorem().sentence())
@@ -82,7 +84,6 @@ public class CommentServiceTests {
 
     @Test
     public void testGet() {
-        Long commentId = 1L;
         CommentDTO commentDTO = commentService.get(commentId);
         Assertions.assertNotNull(commentDTO);
         log.info("CommentDTO: " + commentDTO);
@@ -90,14 +91,12 @@ public class CommentServiceTests {
 
     @Test
     public void testGetListByPostId() {
-        Long postId = 1L;
         List<CommentDTO> result = commentService.getCommentsByPostId(postId);
         log.info("List: " + result);
     }
 
     @Test
     public void testModify() {
-        Long commentId = 1L;
         CommentDTO commentDTO = commentService.get(commentId);
         commentDTO.setContent("ModifiedContent");
         commentService.modify(commentDTO);
@@ -109,14 +108,12 @@ public class CommentServiceTests {
 
     @Test
     public void testRemove() {
-        Long commentId = 1L;
         commentService.remove(commentId);
         Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
     }
 
     @Test
     public void testDeleteByPost() {
-        Long postId = 1L;
         postService.remove(postId);
 
         List<CommentDTO> comments = commentService.getCommentsByPostId(postId);

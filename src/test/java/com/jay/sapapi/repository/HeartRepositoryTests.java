@@ -38,6 +38,8 @@ public class HeartRepositoryTests {
 
     private final Faker faker = new Faker();
 
+    private Long postId, userId, heartId;
+
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
@@ -66,6 +68,7 @@ public class HeartRepositoryTests {
                 .writer(writer)
                 .postImageUrl(faker.internet().image())
                 .build());
+        postId = savedPost.getPostId();
 
         for (int i = 0; i < 5; i++) {
             Member member = memberRepository.save(Member.builder()
@@ -74,11 +77,12 @@ public class HeartRepositoryTests {
                     .nickname(faker.name().name())
                     .memberRole(MemberRole.USER)
                     .build());
+            userId = member.getUserId();
 
-            heartRepository.save(Heart.builder()
+            heartId = heartRepository.save(Heart.builder()
                     .post(savedPost)
                     .member(member)
-                    .build());
+                    .build()).getHeartId();
         }
 
     }
@@ -86,7 +90,6 @@ public class HeartRepositoryTests {
     @Test
     @Transactional
     public void testRead() {
-        Long heartId = 1L;
         Optional<Heart> result = heartRepository.findById(heartId);
         Heart heart = result.orElseThrow();
 
@@ -97,36 +100,7 @@ public class HeartRepositoryTests {
 
     @Test
     public void testReadByPostIdAndUserId() {
-        Long postId = 1L, userId = 1L;
         Optional<Heart> result = heartRepository.findByPostIdAndUserId(postId, userId);
-        if (result.isEmpty()) {
-            Member writer = memberRepository.save(Member.builder()
-                    .email(faker.internet().emailAddress())
-                    .password(passwordEncoder.encode(faker.internet().password()))
-                    .nickname(faker.name().name())
-                    .memberRole(MemberRole.USER)
-                    .build());
-
-            Post savedPost = postRepository.save(Post.builder()
-                    .title(faker.book().title())
-                    .content(faker.lorem().sentence())
-                    .writer(writer)
-                    .postImageUrl(faker.internet().image())
-                    .build());
-
-            heartRepository.save(Heart.builder()
-                    .post(savedPost)
-                    .member(writer)
-                    .build());
-
-            postId = savedPost.getPostId();
-            userId = writer.getUserId();
-            result = heartRepository.findByPostIdAndUserId(postId, userId);
-        }
-
-        log.info("PostId: " + postId);
-        log.info("UserId: " + userId);
-
         Heart heart = result.orElseThrow();
         Assertions.assertNotNull(heart);
 
@@ -136,7 +110,6 @@ public class HeartRepositoryTests {
 
     @Test
     public void testReadListByPost() {
-        Long postId = 1L;
         List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().postId(postId).build());
         Assertions.assertNotNull(hearts);
         hearts.forEach(log::info);
@@ -144,7 +117,6 @@ public class HeartRepositoryTests {
 
     @Test
     public void testDelete() {
-        Long heartId = 1L;
         heartRepository.deleteById(heartId);
         Optional<Heart> result = heartRepository.findById(heartId);
 
@@ -153,7 +125,6 @@ public class HeartRepositoryTests {
 
     @Test
     public void testDeleteByPost() {
-        Long postId = 1L;
         List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().postId(postId).build());
         postRepository.deleteById(postId);
 
