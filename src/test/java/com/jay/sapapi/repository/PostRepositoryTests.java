@@ -84,6 +84,25 @@ public class PostRepositoryTests {
     }
 
     @Test
+    @Transactional
+    public void testReadAll() {
+        log.info("Read all posts");
+        postRepository.findAll().forEach(post -> {
+            log.info("Post: " + post);
+            log.info("Writer: " + post.getWriter());
+        });
+    }
+
+    @Test
+    public void testReadAllWithWriter() {
+        log.info("Read all posts with writer");
+        postRepository.findAllWithWriter().forEach(post -> {
+            log.info("Post: " + post);
+            log.info("Writer: " + post.getWriter());
+        });
+    }
+
+    @Test
     public void testDelete() {
         Long postId = 1L;
         postRepository.deleteById(postId);
