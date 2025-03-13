@@ -5,6 +5,7 @@ import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.dto.CommentDTO;
 import com.jay.sapapi.repository.CommentRepository;
+import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Long register(CommentDTO commentDTO) {
+        if (commentDTO.getContent() == null) {
+            throw new CustomValidationException("invalidCommentContent");
+        }
         Comment result = commentRepository.save(dtoToEntity(commentDTO));
         return result.getCommentId();
     }
