@@ -35,7 +35,7 @@ public class CommentController {
     public ResponseEntity<?> register(CommentDTO dto) {
         long commentId = commentService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "registerSuccess", "commentId", commentId));
+                .body(Map.of("message", "registerSuccess", "data", Map.of("commentId", commentId)));
     }
 
     @PutMapping("/{commentId}")
