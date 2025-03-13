@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,6 +25,12 @@ public class PostController {
         postService.incrementViewCount(postId);
         PostDTO dto = postService.get(postId);
         return Map.of("message", "success", "data", dto);
+    }
+
+    @GetMapping("/")
+    public Map<String, Object> getAll() {
+        List<PostDTO> result = postService.getList();
+        return Map.of("message", "success", "data", result);
     }
 
     @PostMapping("/")
