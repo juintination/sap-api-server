@@ -40,6 +40,18 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("message", "modifySuccess"));
     }
 
+    @PutMapping("/{userId}/password")
+    @PreAuthorize("#userId == authentication.principal.userId")
+    public ResponseEntity<?> changePassword(@PathVariable("userId") Long userId, @RequestBody Map<String, String> passwordMap) {
+        String oldPassword = passwordMap.get("oldPassword");
+        memberService.checkPassword(userId, oldPassword);
+        String newPassword = passwordMap.get("newPassword");
+        MemberDTO dto = memberService.get(userId);
+        dto.setPassword(newPassword);
+        memberService.modify(dto);
+        return ResponseEntity.ok(Map.of("message", "modifySuccess"));
+    }
+
     @DeleteMapping("/{userId}")
     @PreAuthorize("#userId == authentication.principal.userId")
     public ResponseEntity<?> remove(@PathVariable("userId") Long userId) {
