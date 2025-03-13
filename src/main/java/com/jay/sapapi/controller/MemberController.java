@@ -2,6 +2,7 @@ package com.jay.sapapi.controller;
 
 import com.jay.sapapi.dto.MemberDTO;
 import com.jay.sapapi.service.MemberService;
+import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,18 @@ public class MemberController {
         dto.setPassword(newPassword);
         memberService.modify(dto);
         return ResponseEntity.ok(Map.of("message", "modifySuccess"));
+    }
+
+    @PostMapping("/{userId}/password/verification")
+    @PreAuthorize("#userId == authentication.principal.userId")
+    public ResponseEntity<?> verifyPassword(@PathVariable("userId") Long userId, @RequestBody Map<String, String> passwordMap) {
+        String password = passwordMap.get("password");
+        try {
+            memberService.checkPassword(userId, password);
+        } catch (CustomValidationException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "incorrect"));
+        }
+        return ResponseEntity.ok(Map.of("message", "correct"));
     }
 
     @DeleteMapping("/{userId}")
