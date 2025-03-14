@@ -4,7 +4,7 @@ import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.domain.Heart;
+import com.jay.sapapi.domain.PostLike;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -22,13 +22,13 @@ import java.util.Optional;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HeartRepositoryTests {
+public class PostLikeRepositoryTests {
 
     @Autowired
     private PostRepository postRepository;
 
     @Autowired
-    private HeartRepository heartRepository;
+    private PostLikeRepository postLikeRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -44,11 +44,11 @@ public class HeartRepositoryTests {
     public void setup() {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
         Assertions.assertNotNull(postRepository, "PostRepository should not be null");
-        Assertions.assertNotNull(heartRepository, "HeartRepository should not be null");
+        Assertions.assertNotNull(postLikeRepository, "HeartRepository should not be null");
 
         log.info(memberRepository.getClass().getName());
         log.info(postRepository.getClass().getName());
-        log.info(heartRepository.getClass().getName());
+        log.info(postLikeRepository.getClass().getName());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class HeartRepositoryTests {
                     .build());
             userId = member.getId();
 
-            heartId = heartRepository.save(Heart.builder()
+            heartId = postLikeRepository.save(PostLike.builder()
                     .post(savedPost)
                     .member(member)
                     .build()).getId();
@@ -90,46 +90,46 @@ public class HeartRepositoryTests {
     @Test
     @Transactional
     public void testRead() {
-        Optional<Heart> result = heartRepository.findById(heartId);
-        Heart heart = result.orElseThrow();
+        Optional<PostLike> result = postLikeRepository.findById(heartId);
+        PostLike postLike = result.orElseThrow();
 
-        Assertions.assertNotNull(heart);
-        log.info("Post: " + heart.getPost());
-        log.info("Member: " + heart.getMember());
+        Assertions.assertNotNull(postLike);
+        log.info("Post: " + postLike.getPost());
+        log.info("Member: " + postLike.getMember());
     }
 
     @Test
     public void testReadByPostIdAndUserId() {
-        Optional<Heart> result = heartRepository.findByPostIdAndUserId(postId, userId);
-        Heart heart = result.orElseThrow();
-        Assertions.assertNotNull(heart);
+        Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
+        PostLike postLike = result.orElseThrow();
+        Assertions.assertNotNull(postLike);
 
-        log.info("Post: " + heart.getPost());
-        log.info("Member: " + heart.getMember());
+        log.info("Post: " + postLike.getPost());
+        log.info("Member: " + postLike.getMember());
     }
 
     @Test
     public void testReadListByPost() {
-        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().id(postId).build());
-        Assertions.assertNotNull(hearts);
-        hearts.forEach(log::info);
+        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByRegDate(Post.builder().id(postId).build());
+        Assertions.assertNotNull(postLikes);
+        postLikes.forEach(log::info);
     }
 
     @Test
     public void testDelete() {
-        heartRepository.deleteById(heartId);
-        Optional<Heart> result = heartRepository.findById(heartId);
+        postLikeRepository.deleteById(heartId);
+        Optional<PostLike> result = postLikeRepository.findById(heartId);
 
         Assertions.assertEquals(result, Optional.empty());
     }
 
     @Test
     public void testDeleteByPost() {
-        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().id(postId).build());
+        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByRegDate(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
 
-        hearts.forEach(heart -> {
-            Optional<Heart> result = heartRepository.findById(heart.getId());
+        postLikes.forEach(heart -> {
+            Optional<PostLike> result = postLikeRepository.findById(heart.getId());
             Assertions.assertEquals(result, Optional.empty());
         });
     }

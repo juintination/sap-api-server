@@ -5,7 +5,7 @@ import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.domain.Comment;
-import com.jay.sapapi.domain.Heart;
+import com.jay.sapapi.domain.PostLike;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ public class PostRepositoryTests {
     private PostRepository postRepository;
 
     @Autowired
-    private HeartRepository heartRepository;
+    private PostLikeRepository postLikeRepository;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -50,12 +50,12 @@ public class PostRepositoryTests {
         Assertions.assertNotNull(memberRepository, "MemberRepository should not be null");
         Assertions.assertNotNull(postRepository, "PostRepository should not be null");
         Assertions.assertNotNull(commentRepository, "CommentRepository should not be null");
-        Assertions.assertNotNull(heartRepository, "HeartRepository should not be null");
+        Assertions.assertNotNull(postLikeRepository, "HeartRepository should not be null");
 
         log.info(memberRepository.getClass().getName());
         log.info(postRepository.getClass().getName());
         log.info(commentRepository.getClass().getName());
-        log.info(heartRepository.getClass().getName());
+        log.info(postLikeRepository.getClass().getName());
     }
 
     @Test
@@ -86,11 +86,11 @@ public class PostRepositoryTests {
             commentRepository.save(comment);
         }
 
-        Heart heart = Heart.builder()
+        PostLike postLike = PostLike.builder()
                 .post(savedPost)
                 .member(member)
                 .build();
-        heartRepository.save(heart);
+        postLikeRepository.save(postLike);
 
     }
 

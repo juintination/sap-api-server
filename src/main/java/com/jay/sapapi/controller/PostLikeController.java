@@ -1,7 +1,7 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.HeartDTO;
-import com.jay.sapapi.service.HeartService;
+import com.jay.sapapi.dto.PostLikeDTO;
+import com.jay.sapapi.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -14,33 +14,33 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/api/hearts")
-public class HeartController {
+@RequestMapping("/api/likes/posts")
+public class PostLikeController {
 
-    private final HeartService heartService;
+    private final PostLikeService postLikeService;
 
-    @GetMapping("/posts/{postId}/users/{userId}")
+    @GetMapping("/{postId}/users/{userId}")
     public Map<String, Object> get(@PathVariable Long postId, @PathVariable Long userId) {
-        HeartDTO dto = heartService.get(postId, userId);
+        PostLikeDTO dto = postLikeService.get(postId, userId);
         return Map.of("message", "success", "data", Map.of("data", dto));
     }
 
-    @GetMapping("/posts/{postId}")
+    @GetMapping("/{postId}")
     public Map<String, Object> getHeartsByPost(@PathVariable Long postId) {
-        return Map.of("message", "success", "data", heartService.getHeartsByPost(postId));
+        return Map.of("message", "success", "data", postLikeService.getHeartsByPost(postId));
     }
 
     @PostMapping("/")
     @PreAuthorize("#dto.userId == authentication.principal.userId")
-    public ResponseEntity<?> register(HeartDTO dto) {
-        long heartId = heartService.register(dto);
+    public ResponseEntity<?> register(PostLikeDTO dto) {
+        long heartId = postLikeService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "registerSuccess", "data", Map.of("id", heartId)));
     }
 
-    @DeleteMapping("/posts/{postId}/users/{userId}")
+    @DeleteMapping("/{postId}/users/{userId}")
     public Map<String, Object> remove(@PathVariable Long postId, @PathVariable Long userId) {
-        heartService.remove(postId, userId);
+        postLikeService.remove(postId, userId);
         return Map.of("message", "removeSuccess");
     }
 

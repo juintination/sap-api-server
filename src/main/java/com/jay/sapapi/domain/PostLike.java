@@ -13,7 +13,7 @@ import lombok.*;
 @Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"post_id", "user_id"})
 })
-public class Heart extends TimeStampedEntity {
+public class PostLike extends TimeStampedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

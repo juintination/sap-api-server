@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString(exclude = {"posts", "comments", "hearts"})
+@ToString(exclude = {"posts", "comments", "postLikes"})
 public class Member extends TimeStampedEntity {
 
     @Id
@@ -39,7 +39,7 @@ public class Member extends TimeStampedEntity {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Heart> hearts;
+    private List<PostLike> postLikes;
 
     public void changeRole(MemberRole memberRole) {
         this.memberRole = memberRole;

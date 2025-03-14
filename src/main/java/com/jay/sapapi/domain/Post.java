@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"writer", "comments" ,"hearts"})
+@ToString(exclude = {"writer", "comments" ,"postLikes"})
 public class Post extends TimeStampedEntity {
 
     @Id
@@ -35,7 +35,7 @@ public class Post extends TimeStampedEntity {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Heart> hearts;
+    private List<PostLike> postLikes;
 
     public void changeTitle(String title) {
         this.title = title;

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HeartDTO {
+public class PostLikeDTO {
 
     private Long id, postId, userId;
 

@@ -2,7 +2,7 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.HeartDTO;
+import com.jay.sapapi.dto.PostLikeDTO;
 import com.jay.sapapi.dto.MemberDTO;
 import com.jay.sapapi.dto.PostDTO;
 import lombok.extern.log4j.Log4j2;
@@ -20,13 +20,13 @@ import java.util.NoSuchElementException;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HeartServiceTests {
+public class PostLikeServiceTests {
 
     @Autowired
     private PostService postService;
 
     @Autowired
-    private HeartService heartService;
+    private PostLikeService postLikeService;
 
     @Autowired
     private MemberService memberService;
@@ -38,11 +38,11 @@ public class HeartServiceTests {
     @BeforeAll
     public void setup() {
         Assertions.assertNotNull(postService, "PostService should not be null");
-        Assertions.assertNotNull(heartService, "HeartService should not be null");
+        Assertions.assertNotNull(postLikeService, "HeartService should not be null");
         Assertions.assertNotNull(memberService, "MemberService should not be null");
 
         log.info(postService.getClass().getName());
-        log.info(heartService.getClass().getName());
+        log.info(postLikeService.getClass().getName());
         log.info(memberService.getClass().getName());
     }
 
@@ -73,7 +73,7 @@ public class HeartServiceTests {
                     .build();
             userId = memberService.register(memberDTO);
 
-            heartService.register(HeartDTO.builder()
+            postLikeService.register(PostLikeDTO.builder()
                     .postId(postId)
                     .userId(userId)
                     .build());
@@ -83,28 +83,28 @@ public class HeartServiceTests {
 
     @Test
     public void testGet() {
-        HeartDTO heartDTO = heartService.get(postId, userId);
-        Assertions.assertNotNull(heartDTO);
-        log.info("HeartDTO: " + heartDTO);
+        PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
+        Assertions.assertNotNull(postLikeDTO);
+        log.info("HeartDTO: " + postLikeDTO);
     }
 
     @Test
     public void testGetListByPostId() {
-        List<HeartDTO> result = heartService.getHeartsByPost(postId);
+        List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
         log.info("List: " + result);
     }
 
     @Test
     public void testRemove() {
-        heartService.remove(postId, userId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> heartService.get(postId, userId));
+        postLikeService.remove(postId, userId);
+        Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
     }
 
     @Test
     public void testDeleteByPost() {
         postService.remove(postId);
 
-        List<HeartDTO> hearts = heartService.getHeartsByPost(postId);
+        List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
         Assertions.assertTrue(hearts.isEmpty(), "Hearts should be empty");
     }
 
