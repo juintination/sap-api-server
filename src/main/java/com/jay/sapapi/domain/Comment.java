@@ -19,11 +19,11 @@ public class Comment extends TimeStampedEntity {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commenterId", nullable = false)
+    @JoinColumn(name = "commenter_id", nullable = false)
     private Member commenter;
 
     public void changeContent(String content) {
