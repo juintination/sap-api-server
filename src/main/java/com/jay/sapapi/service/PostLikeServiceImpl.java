@@ -3,6 +3,7 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.PostLike;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
+import com.jay.sapapi.dto.PostDTO;
 import com.jay.sapapi.dto.PostLikeDTO;
 import com.jay.sapapi.repository.PostLikeRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
@@ -22,6 +23,8 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
 
+    private final PostService postService;
+
     @Override
     public PostLikeDTO get(Long postId, Long userId) {
         Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
@@ -31,7 +34,8 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public List<PostLikeDTO> getHeartsByPost(Long postId) {
-        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByRegDate(Post.builder().id(postId).build());
+        PostDTO postDTO = postService.get(postId);
+        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByRegDate(postService.dtoToEntity(postDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
