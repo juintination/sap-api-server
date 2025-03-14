@@ -35,7 +35,7 @@ public class HeartController {
     public ResponseEntity<?> register(HeartDTO dto) {
         long heartId = heartService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "registerSuccess", "data", Map.of("heartId", heartId)));
+                .body(Map.of("message", "registerSuccess", "data", Map.of("id", heartId)));
     }
 
     @DeleteMapping("/posts/{postId}/users/{userId}")

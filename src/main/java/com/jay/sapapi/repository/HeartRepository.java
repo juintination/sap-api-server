@@ -14,8 +14,8 @@ public interface HeartRepository extends JpaRepository<Heart, Long> {
     @Query("SELECT h FROM Heart h " +
             "JOIN FETCH h.post " +
             "JOIN FETCH h.member " +
-            "WHERE h.post.postId = :postId " +
-            "AND h.member.userId = :userId")
+            "WHERE h.post.id = :postId " +
+            "AND h.member.id = :userId")
     Optional<Heart> findByPostIdAndUserId(@Param("postId") Long postId, @Param("userId") Long userId);
 
     List<Heart> getHeartsByPostOrderByRegDate(Post post);

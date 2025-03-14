@@ -65,7 +65,7 @@ public class MemberServiceTests {
     @Test
     public void testModify() {
         MemberDTO memberDTO = MemberDTO.builder()
-                .userId(userId)
+                .id(userId)
                 .email("Modified@example.com")
                 .password("NewPassword")
                 .nickname("ModifiedUser")

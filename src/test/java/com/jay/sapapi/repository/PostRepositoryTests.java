@@ -75,7 +75,7 @@ public class PostRepositoryTests {
                 .writer(member)
                 .postImageUrl(faker.internet().image())
                 .build());
-        postId = savedPost.getPostId();
+        postId = savedPost.getId();
 
         for (int i = 0; i < 10; i++) {
             Comment comment = Comment.builder()

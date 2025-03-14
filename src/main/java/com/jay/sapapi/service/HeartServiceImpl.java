@@ -31,7 +31,7 @@ public class HeartServiceImpl implements HeartService {
 
     @Override
     public List<HeartDTO> getHeartsByPost(Long postId) {
-        List<Heart> result = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().postId(postId).build());
+        List<Heart> result = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().id(postId).build());
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
@@ -45,7 +45,7 @@ public class HeartServiceImpl implements HeartService {
 
         Heart heart = dtoToEntity(heartDTO);
         Heart result = heartRepository.save(heart);
-        return result.getHeartId();
+        return result.getId();
     }
 
     @Override
@@ -54,16 +54,16 @@ public class HeartServiceImpl implements HeartService {
         if (existingHeart.isEmpty()) {
             throw new NoSuchElementException("heartNotFound");
         }
-        Long heartId = existingHeart.get().getHeartId();
+        Long heartId = existingHeart.get().getId();
         heartRepository.deleteById(heartId);
     }
 
     @Override
     public Heart dtoToEntity(HeartDTO heartDTO) {
         return Heart.builder()
-                .heartId(heartDTO.getHeartId())
-                .member(Member.builder().userId(heartDTO.getUserId()).build())
-                .post(Post.builder().postId(heartDTO.getPostId()).build())
+                .id(heartDTO.getId())
+                .member(Member.builder().id(heartDTO.getUserId()).build())
+                .post(Post.builder().id(heartDTO.getPostId()).build())
                 .build();
     }
 

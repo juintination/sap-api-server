@@ -40,12 +40,12 @@ public class MemberServiceImpl implements MemberService {
         }
 
         Member member = memberRepository.save(dtoToEntity(memberDTO));
-        return member.getUserId();
+        return member.getId();
     }
 
     @Override
     public void modify(MemberDTO memberDTO) {
-        Member member = memberRepository.findById(memberDTO.getUserId())
+        Member member = memberRepository.findById(memberDTO.getId())
                 .orElseThrow(() -> new NoSuchElementException("userNotFound"));
         log.info("memberDTO: " + memberDTO);
 
@@ -100,7 +100,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member dtoToEntity(MemberDTO memberDTO) {
         return Member.builder()
-                .userId(memberDTO.getUserId())
+                .id(memberDTO.getId())
                 .email(memberDTO.getEmail())
                 .password(memberDTO.getPassword() != null ? passwordEncoder.encode(memberDTO.getPassword()) : null)
                 .nickname(memberDTO.getNickname())

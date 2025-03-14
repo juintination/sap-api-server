@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PostDTO {
 
-    private Long postId, writerId;
+    private Long id, writerId;
 
     private String title, content;
 

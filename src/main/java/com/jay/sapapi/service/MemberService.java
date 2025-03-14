@@ -21,7 +21,7 @@ public interface MemberService {
 
     default MemberDTO entityToDTO(Member member) {
         return MemberDTO.builder()
-                .userId(member.getUserId())
+                .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())

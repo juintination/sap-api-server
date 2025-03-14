@@ -16,7 +16,7 @@ public class Member extends TimeStampedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String email;

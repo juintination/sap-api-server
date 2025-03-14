@@ -23,10 +23,10 @@ public interface CommentService {
 
     default CommentDTO entityToDTO(Comment comment) {
         return CommentDTO.builder()
-                .commentId(comment.getCommentId())
-                .postId(comment.getPost().getPostId())
+                .id(comment.getId())
+                .postId(comment.getPost().getId())
                 .content(comment.getContent())
-                .commenterId(comment.getCommenter().getUserId())
+                .commenterId(comment.getCommenter().getId())
                 .commenterEmail(comment.getCommenter().getEmail())
                 .commenterNickname(comment.getCommenter().getNickname())
                 .regDate(comment.getRegDate())

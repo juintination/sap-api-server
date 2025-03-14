@@ -30,13 +30,13 @@ public class MemberController {
     public ResponseEntity<?> register(@RequestBody MemberDTO dto) {
         long userId = memberService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "registerSuccess", "data", Map.of("userId", userId)));
+                .body(Map.of("message", "registerSuccess", "data", Map.of("id", userId)));
     }
 
     @PutMapping("/{userId}")
     @PreAuthorize("#userId == authentication.principal.userId")
     public ResponseEntity<?> modify(@PathVariable("userId") Long userId, @RequestBody MemberDTO dto) {
-        dto.setUserId(userId);
+        dto.setId(userId);
         memberService.modify(dto);
         return ResponseEntity.ok(Map.of("message", "modifySuccess"));
     }

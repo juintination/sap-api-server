@@ -68,7 +68,7 @@ public class HeartRepositoryTests {
                 .writer(writer)
                 .postImageUrl(faker.internet().image())
                 .build());
-        postId = savedPost.getPostId();
+        postId = savedPost.getId();
 
         for (int i = 0; i < 5; i++) {
             Member member = memberRepository.save(Member.builder()
@@ -77,12 +77,12 @@ public class HeartRepositoryTests {
                     .nickname(faker.name().name())
                     .memberRole(MemberRole.USER)
                     .build());
-            userId = member.getUserId();
+            userId = member.getId();
 
             heartId = heartRepository.save(Heart.builder()
                     .post(savedPost)
                     .member(member)
-                    .build()).getHeartId();
+                    .build()).getId();
         }
 
     }
@@ -110,7 +110,7 @@ public class HeartRepositoryTests {
 
     @Test
     public void testReadListByPost() {
-        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().postId(postId).build());
+        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().id(postId).build());
         Assertions.assertNotNull(hearts);
         hearts.forEach(log::info);
     }
@@ -125,11 +125,11 @@ public class HeartRepositoryTests {
 
     @Test
     public void testDeleteByPost() {
-        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().postId(postId).build());
+        List<Heart> hearts = heartRepository.getHeartsByPostOrderByRegDate(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
 
         hearts.forEach(heart -> {
-            Optional<Heart> result = heartRepository.findById(heart.getHeartId());
+            Optional<Heart> result = heartRepository.findById(heart.getId());
             Assertions.assertEquals(result, Optional.empty());
         });
     }

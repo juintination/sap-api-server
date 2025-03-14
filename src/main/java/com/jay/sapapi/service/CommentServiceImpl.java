@@ -31,7 +31,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDTO> getCommentsByPostId(Long postId) {
-        List<Comment> result = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().postId(postId).build());
+        List<Comment> result = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
@@ -41,12 +41,12 @@ public class CommentServiceImpl implements CommentService {
             throw new CustomValidationException("invalidCommentContent");
         }
         Comment result = commentRepository.save(dtoToEntity(commentDTO));
-        return result.getCommentId();
+        return result.getId();
     }
 
     @Override
     public void modify(CommentDTO commentDTO) {
-        Optional<Comment> result = commentRepository.findById(commentDTO.getCommentId());
+        Optional<Comment> result = commentRepository.findById(commentDTO.getId());
         Comment comment = result.orElseThrow(() -> new NoSuchElementException("commentNotFound"));
         comment.changeContent(commentDTO.getContent());
         commentRepository.save(comment);
@@ -63,10 +63,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment dtoToEntity(CommentDTO commentDTO) {
         return Comment.builder()
-                .commentId(commentDTO.getCommentId())
+                .id(commentDTO.getId())
                 .content(commentDTO.getContent())
-                .post(Post.builder().postId(commentDTO.getPostId()).build())
-                .commenter(Member.builder().userId(commentDTO.getCommenterId()).build())
+                .post(Post.builder().id(commentDTO.getPostId()).build())
+                .commenter(Member.builder().id(commentDTO.getCommenterId()).build())
                 .build();
     }
 

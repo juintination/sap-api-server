@@ -49,7 +49,7 @@ public class MemberRepositoryTests {
                 .memberRole(MemberRole.USER)
                 .build();
         if (!memberRepository.existsByEmail(email)) {
-            userId = memberRepository.save(member).getUserId();
+            userId = memberRepository.save(member).getId();
         }
     }
 

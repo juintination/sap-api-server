@@ -58,12 +58,12 @@ public class PostServiceImpl implements PostService {
 
         Post post = dtoToEntity(postDTO);
         Post result = postRepository.save(post);
-        return result.getPostId();
+        return result.getId();
     }
 
     @Override
     public void modify(PostDTO postDTO) {
-        Optional<Post> result = postRepository.findById(postDTO.getPostId());
+        Optional<Post> result = postRepository.findById(postDTO.getId());
         Post post = result.orElseThrow(() -> new NoSuchElementException("postNotFound"));
         post.changeTitle(postDTO.getTitle());
         post.changeContent(postDTO.getContent());
@@ -86,8 +86,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post dtoToEntity(PostDTO postDTO) {
         return Post.builder()
-                .postId(postDTO.getPostId())
-                .writer(Member.builder().userId(postDTO.getWriterId()).build())
+                .id(postDTO.getId())
+                .writer(Member.builder().id(postDTO.getWriterId()).build())
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
                 .viewCount(postDTO.getViewCount() != null ? postDTO.getViewCount() : 0)

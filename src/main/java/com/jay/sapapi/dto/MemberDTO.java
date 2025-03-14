@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MemberDTO {
 
-    private Long userId;
+    private Long id;
 
     private String email;
 

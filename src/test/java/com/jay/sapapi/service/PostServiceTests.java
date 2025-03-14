@@ -85,7 +85,7 @@ public class PostServiceTests {
     @Test
     public void testModify() {
         PostDTO postDTO = PostDTO.builder()
-                .postId(postId)
+                .id(postId)
                 .title("ModifiedTitle")
                 .content("ModifiedContent")
                 .postImageUrl(faker.internet().image())

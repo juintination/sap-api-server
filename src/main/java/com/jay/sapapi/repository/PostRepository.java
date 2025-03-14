@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "LEFT JOIN p.writer w " +
             "LEFT JOIN Comment c ON c.post = p " +
             "LEFT JOIN Heart h ON h.post = p " +
-            "WHERE p.postId = :postId " +
+            "WHERE p.id = :postId " +
             "GROUP BY p, w")
     Object getPostByPostId(@Param("postId") Long postId);
 

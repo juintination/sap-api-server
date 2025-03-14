@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class HeartDTO {
 
-    private Long heartId, postId, userId;
+    private Long id, postId, userId;
 
     private LocalDateTime regDate;
 

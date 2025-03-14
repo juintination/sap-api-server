@@ -14,9 +14,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c " +
             "JOIN FETCH c.post " +
             "JOIN FETCH c.commenter " +
-            "WHERE c.commentId = :commentId")
+            "WHERE c.id = :commentId")
     Optional<Comment> getCommentByCommentId(@Param("commentId") Long commentId);
 
-    List<Comment> getCommentsByPostOrderByCommentId(Post post);
+    List<Comment> getCommentsByPostOrderById(Post post);
 
 }

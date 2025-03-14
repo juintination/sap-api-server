@@ -56,7 +56,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             Map<String, Object> claims = JWTUtil.validateToken(accessToken);
             log.info("JWT claims: " + claims);
 
-            long userId = Long.parseLong(claims.get("userId").toString());
+            long userId = Long.parseLong(claims.get("id").toString());
             String email = (String) claims.get("email");
             String nickname = (String) claims.get("nickname");
             String profileImageUrl = (String) claims.get("profileImageUrl");
@@ -64,7 +64,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             MemberRole memberRole = MemberRole.valueOf(role);
 
             Member member = Member.builder()
-                    .userId(userId)
+                    .id(userId)
                     .email(email)
                     .nickname(nickname)
                     .profileImageUrl(profileImageUrl)

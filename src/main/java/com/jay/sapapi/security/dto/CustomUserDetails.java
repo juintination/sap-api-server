@@ -24,7 +24,7 @@ public class CustomUserDetails implements UserDetails {
 
     public CustomUserDetails(Member member) {
         this.member = member;
-        this.userId = member.getUserId();
+        this.userId = member.getId();
     }
 
     @Override
@@ -64,11 +64,12 @@ public class CustomUserDetails implements UserDetails {
 
     public Map<String, Object> getClaims() {
         Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("userId", member.getUserId());
+        dataMap.put("id", member.getId());
         dataMap.put("email", member.getEmail());
         dataMap.put("nickname", member.getNickname());
         dataMap.put("profileImageUrl", member.getProfileImageUrl());
         dataMap.put("role", member.getMemberRole().toString());
         return dataMap;
     }
+
 }

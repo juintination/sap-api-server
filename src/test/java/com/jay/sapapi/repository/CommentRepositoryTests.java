@@ -68,7 +68,7 @@ public class CommentRepositoryTests {
                 .writer(writer)
                 .postImageUrl(faker.internet().image())
                 .build());
-        postId = savedPost.getPostId();
+        postId = savedPost.getId();
 
         for (int i = 0; i < 5; i++) {
             Member commenter = memberRepository.save(Member.builder()
@@ -82,7 +82,7 @@ public class CommentRepositoryTests {
                     .post(savedPost)
                     .commenter(commenter)
                     .content(faker.lorem().sentence())
-                    .build()).getCommentId();
+                    .build()).getId();
         }
 
     }
@@ -110,7 +110,7 @@ public class CommentRepositoryTests {
 
     @Test
     public void testReadListByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().postId(postId).build());
+        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().id(postId).build());
         Assertions.assertNotNull(comments);
         comments.forEach(log::info);
     }
@@ -125,11 +125,11 @@ public class CommentRepositoryTests {
 
     @Test
     public void testDeleteByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().postId(postId).build());
+        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
 
         comments.forEach(comment -> {
-            Optional<Comment> result = commentRepository.findById(comment.getCommentId());
+            Optional<Comment> result = commentRepository.findById(comment.getId());
             Assertions.assertEquals(result, Optional.empty());
         });
     }

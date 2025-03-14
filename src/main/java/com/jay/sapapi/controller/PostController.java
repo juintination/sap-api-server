@@ -38,13 +38,13 @@ public class PostController {
     public ResponseEntity<?> register(PostDTO dto) {
         long postId = postService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "registerSuccess", "data", Map.of("postId", postId)));
+                .body(Map.of("message", "registerSuccess", "data", Map.of("id", postId)));
     }
 
     @PutMapping("/{postId}")
     @PreAuthorize("#dto.writerId == authentication.principal.userId")
     public Map<String, Object> modify(@PathVariable Long postId, PostDTO dto) {
-        dto.setPostId(postId);
+        dto.setId(postId);
         postService.modify(dto);
         return Map.of("message", "modifySuccess");
     }

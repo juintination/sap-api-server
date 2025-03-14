@@ -21,9 +21,9 @@ public interface HeartService {
 
     default HeartDTO entityToDTO(Heart heart) {
         return HeartDTO.builder()
-                .heartId(heart.getHeartId())
-                .postId(heart.getPost().getPostId())
-                .userId(heart.getMember().getUserId())
+                .id(heart.getId())
+                .postId(heart.getPost().getId())
+                .userId(heart.getMember().getId())
                 .regDate(heart.getRegDate())
                 .build();
     }
