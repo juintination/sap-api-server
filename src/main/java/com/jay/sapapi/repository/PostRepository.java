@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h.member) " +
+    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h) " +
             "FROM Post p " +
             "LEFT JOIN p.writer w " +
             "LEFT JOIN Comment c ON c.post = p " +
@@ -18,7 +18,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "GROUP BY p, w")
     Object getPostByPostId(@Param("postId") Long postId);
 
-    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h.member) " +
+    @Query("SELECT p, w, COUNT(DISTINCT c), COUNT(DISTINCT h) " +
             "FROM Post p " +
             "LEFT JOIN p.writer w " +
             "LEFT JOIN Comment c ON c.post = p " +
