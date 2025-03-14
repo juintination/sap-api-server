@@ -9,6 +9,10 @@ public interface MemberService {
 
     MemberDTO get(Long userId);
 
+    boolean existsByEmail(String email);
+
+    boolean existsByNickname(String nickname);
+
     Long register(MemberDTO memberDTO);
 
     void modify(MemberDTO modifyDTO);

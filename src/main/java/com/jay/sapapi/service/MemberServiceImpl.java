@@ -29,6 +29,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    @Override
     public Long register(MemberDTO memberDTO) {
 
         if (memberRepository.existsByEmail(memberDTO.getEmail())) {

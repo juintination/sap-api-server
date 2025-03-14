@@ -26,6 +26,18 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("message", "success", "data", dto));
     }
 
+    @GetMapping("/emails/{email}")
+    public ResponseEntity<?> existsByEmail(@PathVariable("email") String email) {
+        boolean exists = memberService.existsByEmail(email);
+        return ResponseEntity.ok(Map.of("message", "success", "data", exists));
+    }
+
+    @GetMapping("/nicknames/{nickname}")
+    public ResponseEntity<?> existsByNickname(@PathVariable("nickname") String nickname) {
+        boolean exists = memberService.existsByNickname(nickname);
+        return ResponseEntity.ok(Map.of("message", "success", "data", exists));
+    }
+
     @PostMapping("/")
     public ResponseEntity<?> register(@RequestBody MemberDTO dto) {
         long userId = memberService.register(dto);
