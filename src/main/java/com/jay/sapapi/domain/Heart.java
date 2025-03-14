@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString(exclude = {"post", "member"})
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"postId", "userId"})
+        @UniqueConstraint(columnNames = {"post_id", "user_id"})
 })
 public class Heart extends TimeStampedEntity {
 
