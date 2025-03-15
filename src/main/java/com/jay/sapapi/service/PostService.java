@@ -30,6 +30,7 @@ public interface PostService {
                 .writerId(writer.getId())
                 .writerNickname(writer.getNickname())
                 .writerEmail(writer.getEmail())
+                .writerProfileImageUrl(writer.getProfileImageUrl())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .viewCount(post.getViewCount())

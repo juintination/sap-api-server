@@ -25,5 +25,7 @@ public class PostDTO {
 
     private String writerNickname, writerEmail;
 
+    private String writerProfileImageUrl;
+
     private LocalDateTime regDate, modDate;
 }
