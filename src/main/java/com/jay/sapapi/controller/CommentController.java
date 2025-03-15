@@ -41,7 +41,7 @@ public class CommentController {
     @PutMapping("/{commentId}")
     @PreAuthorize("#dto.commenterId == authentication.principal.userId")
     public Map<String, Object> modify(@PathVariable Long commentId, CommentDTO dto) {
-        dto.setCommenterId(commentId);
+        dto.setId(commentId);
         commentService.modify(dto);
         return Map.of("message", "modifySuccess");
     }
