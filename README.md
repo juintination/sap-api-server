@@ -1,5 +1,5 @@
-### 6주차 과제 내용
-[아무 말 대잔치 커뮤니티](https://github.com/juintination/say-anything-party)를 위한 백엔드 API 서버 제작하기
+### Say Anything Party API Server
+[아무 말 대잔치 커뮤니티](https://github.com/juintination/say-anything-party)를 위한 백엔드 API 서버
 
 ### Entity Relationship Diagram
 - The [ERD](https://www.erdcloud.com/d/jnEJjaPDkS2TSJryZ) was written in ErdCloud.
