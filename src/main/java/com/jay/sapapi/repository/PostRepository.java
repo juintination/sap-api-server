@@ -23,7 +23,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "LEFT JOIN p.writer w " +
             "LEFT JOIN Comment c ON c.post = p " +
             "LEFT JOIN PostLike h ON h.post = p " +
-            "GROUP BY p, w")
+            "GROUP BY p, w " +
+            "ORDER BY p.id DESC")
     List<Object> getAllPosts();
 
 }
