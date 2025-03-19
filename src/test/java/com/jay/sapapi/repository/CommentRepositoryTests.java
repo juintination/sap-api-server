@@ -102,15 +102,15 @@ public class CommentRepositoryTests {
     public void testReadWithoutTransactional() {
         Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
         Comment comment = result.orElseThrow();
-        Assertions.assertNotNull(comment);
 
+        Assertions.assertNotNull(comment);
         log.info("Post: " + comment.getPost());
         log.info("Commenter: " + comment.getCommenter());
     }
 
     @Test
     public void testReadListByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().id(postId).build());
+        List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         Assertions.assertNotNull(comments);
         comments.forEach(log::info);
     }
@@ -125,7 +125,7 @@ public class CommentRepositoryTests {
 
     @Test
     public void testDeleteByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderByCommentId(Post.builder().id(postId).build());
+        List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
 
         comments.forEach(comment -> {
