@@ -102,10 +102,12 @@ public class PostLikeServiceTests {
 
     @Test
     public void testDeleteByPost() {
+        List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
         postService.remove(postId);
 
-        List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
-        Assertions.assertTrue(hearts.isEmpty(), "Hearts should be empty");
+        for (PostLikeDTO heart : hearts) {
+            Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
+        }
     }
 
 }

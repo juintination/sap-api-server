@@ -114,10 +114,12 @@ public class CommentServiceTests {
 
     @Test
     public void testDeleteByPost() {
+        List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
         postService.remove(postId);
 
-        List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
-        Assertions.assertTrue(comments.isEmpty(), "Comments should be empty");
+        comments.forEach(comment -> {
+            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
+        });
     }
 
 }
