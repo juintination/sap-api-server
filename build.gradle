@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id "org.asciidoctor.jvm.convert" version '3.3.2'
 }
 
 group = 'com.jay'
@@ -17,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	asciidoctorExt
 }
 
 repositories {
@@ -55,10 +57,41 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/net.coobird/thumbnailator
 	implementation 'net.coobird:thumbnailator:0.4.19'
+
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+ext {
+	snippetsDir = file('build/generated-snippets')
+	docsOutputDir = file("build/docs/asciidoc")
+	projectDocsDir = file("src/main/resources/static/docs")
 }
 
 tasks.named('test') {
+	doFirst {
+		delete(snippetsDir)
+	}
 	useJUnitPlatform()
+}
+
+tasks.named('asciidoctor') {
+	doFirst {
+		delete(docsOutputDir)
+		delete(projectDocsDir)
+	}
+	inputs.dir(snippetsDir)
+	dependsOn('test')
+	doLast {
+		copy {
+			from docsOutputDir
+			into projectDocsDir
+		}
+	}
+}
+
+tasks.named('bootJar') {
+	dependsOn('asciidoctor')
 }
 
 jar {
