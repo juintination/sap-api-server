@@ -57,20 +57,23 @@ public class ImageServiceTests {
                 .imageType(ImageType.PROFILE_IMAGE)
                 .build();
         fileName = imageService.registerImage(imageDTO);
-        log.info("File name: " + fileName);
+
+        Assertions.assertNotNull(fileName, "Registered file name should not be null");
+        Assertions.assertFalse(fileName.isEmpty(), "Registered file name should not be empty");
 
     }
 
     @Test
     public void testGet() throws IOException {
         Map<String, String> result = imageService.viewImage(fileName);
-        Assertions.assertNotNull(result);
-        log.info("Result: " + result);
+        Assertions.assertNotNull(result, "Result map from viewImage should not be null");
+        Assertions.assertTrue(result.containsKey("fileContent"), "Result should contain the fileContent");
     }
 
     @Test
     public void testRemove() {
         imageService.removeImage(fileName);
+        Assertions.assertThrows(IOException.class, () -> imageService.viewImage(fileName));
     }
 
     @AfterAll
