@@ -7,10 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface MemberService {
 
+    @Transactional(readOnly = true)
     MemberDTO get(Long userId);
 
+    @Transactional(readOnly = true)
     boolean existsByEmail(String email);
 
+    @Transactional(readOnly = true)
     boolean existsByNickname(String nickname);
 
     Long register(MemberDTO memberDTO);
@@ -19,6 +22,7 @@ public interface MemberService {
 
     void remove(Long userId);
 
+    @Transactional(readOnly = true)
     void checkPassword(Long userId, String password);
 
     Member dtoToEntity(MemberDTO memberDTO);

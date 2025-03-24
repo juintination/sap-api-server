@@ -9,8 +9,10 @@ import java.util.List;
 @Transactional
 public interface CommentService {
 
+    @Transactional(readOnly = true)
     CommentDTO get(Long commentId);
 
+    @Transactional(readOnly = true)
     List<CommentDTO> getCommentsByPostId(Long postId);
 
     Long register(CommentDTO commentDTO);

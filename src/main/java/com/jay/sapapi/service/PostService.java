@@ -3,17 +3,19 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.dto.PostDTO;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Transactional
 public interface PostService {
 
+    @Transactional(readOnly = true)
     PostDTO get(Long postId);
 
     void incrementViewCount(Long postId);
 
+    @Transactional(readOnly = true)
     List<PostDTO> getList();
 
     Long register(PostDTO postDTO);

@@ -1,12 +1,10 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.dto.ImageDTO;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Map;
 
-@Transactional
 public interface ImageService {
 
     Map<String, String> viewImage(String fileName) throws IOException;
