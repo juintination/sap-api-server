@@ -5,16 +5,17 @@ import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.domain.Comment;
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,11 @@ public class CommentRepositoryTests {
 
     private final Faker faker = new Faker();
 
-    private Long postId, commentId;
+    private final int commentsCount = 5;
+
+    private Long postId, commentId, commenterId;
+
+    private String content;
 
     @BeforeAll
     public void setup() {
@@ -51,9 +56,8 @@ public class CommentRepositoryTests {
         log.info(commentRepository.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testInsert() {
+    public void insertComments() {
 
         Member writer = memberRepository.save(Member.builder()
                 .email(faker.internet().emailAddress())
@@ -70,68 +74,76 @@ public class CommentRepositoryTests {
                 .build());
         postId = savedPost.getId();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < commentsCount; i++) {
             Member commenter = memberRepository.save(Member.builder()
                     .email(faker.internet().emailAddress())
                     .password(passwordEncoder.encode(faker.internet().password()))
                     .nickname(faker.name().name())
                     .memberRole(MemberRole.USER)
                     .build());
+            commenterId = commenter.getId();
 
+            content = faker.lorem().sentence();
             commentId = commentRepository.save(Comment.builder()
                     .post(savedPost)
                     .commenter(commenter)
-                    .content(faker.lorem().sentence())
+                    .content(content)
                     .build()).getId();
         }
 
     }
 
+    @AfterEach
+    public void cleanup() {
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+        memberRepository.deleteAll();
+    }
+
     @Test
-    @Transactional
+    @Transactional(readOnly = true)
     public void testRead() {
         Optional<Comment> result = commentRepository.findById(commentId);
         Comment comment = result.orElseThrow();
-
-        Assertions.assertNotNull(comment);
-        log.info("Post: " + comment.getPost());
-        log.info("Commenter: " + comment.getCommenter());
+        Assertions.assertEquals(content, comment.getContent());
     }
 
     @Test
     public void testReadWithoutTransactional() {
         Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
         Comment comment = result.orElseThrow();
-
-        Assertions.assertNotNull(comment);
-        log.info("Post: " + comment.getPost());
-        log.info("Commenter: " + comment.getCommenter());
+        Assertions.assertEquals(content, comment.getContent());
     }
 
     @Test
     public void testReadListByPost() {
         List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
-        Assertions.assertNotNull(comments);
         comments.forEach(log::info);
+        Assertions.assertEquals(commentsCount, comments.size());
     }
 
     @Test
     public void testDelete() {
         commentRepository.deleteById(commentId);
         Optional<Comment> result = commentRepository.findById(commentId);
-
-        Assertions.assertEquals(result, Optional.empty());
+        Assertions.assertEquals(Optional.empty(), result);
     }
 
     @Test
     public void testDeleteByPost() {
         List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
-
         comments.forEach(comment -> {
             Optional<Comment> result = commentRepository.findById(comment.getId());
-            Assertions.assertEquals(result, Optional.empty());
+            Assertions.assertEquals(Optional.empty(), result);
         });
+    }
+
+    @Test
+    public void testDeleteByMember() {
+        memberRepository.deleteById(commenterId);
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        Assertions.assertEquals(Optional.empty(), comment);
     }
 
 }

@@ -5,16 +5,17 @@ import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.domain.PostLike;
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,8 @@ public class PostLikeRepositoryTests {
 
     private final Faker faker = new Faker();
 
+    private final int heartsCount = 5;
+
     private Long postId, userId, heartId;
 
     @BeforeAll
@@ -51,9 +54,8 @@ public class PostLikeRepositoryTests {
         log.info(postLikeRepository.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testInsert() {
+    public void insertPostLikes() {
 
         Member writer = memberRepository.save(Member.builder()
                 .email(faker.internet().emailAddress())
@@ -70,7 +72,7 @@ public class PostLikeRepositoryTests {
                 .build());
         postId = savedPost.getId();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < heartsCount; i++) {
             Member member = memberRepository.save(Member.builder()
                     .email(faker.internet().emailAddress())
                     .password(passwordEncoder.encode(faker.internet().password()))
@@ -87,51 +89,58 @@ public class PostLikeRepositoryTests {
 
     }
 
+    @AfterEach
+    public void cleanup() {
+        postLikeRepository.deleteAll();
+        postRepository.deleteAll();
+        memberRepository.deleteAll();
+    }
+
     @Test
-    @Transactional
+    @Transactional(readOnly = true)
     public void testRead() {
         Optional<PostLike> result = postLikeRepository.findById(heartId);
         PostLike postLike = result.orElseThrow();
-
-        Assertions.assertNotNull(postLike);
-        log.info("Post: " + postLike.getPost());
-        log.info("Member: " + postLike.getMember());
+        Assertions.assertEquals(postId, postLike.getPost().getId());
+        Assertions.assertEquals(userId, postLike.getMember().getId());
     }
 
     @Test
     public void testReadByPostIdAndUserId() {
         Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
         PostLike postLike = result.orElseThrow();
-        Assertions.assertNotNull(postLike);
-
-        log.info("Post: " + postLike.getPost());
-        log.info("Member: " + postLike.getMember());
+        Assertions.assertEquals(heartId, postLike.getId());
     }
 
     @Test
     public void testReadListByPost() {
         List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
-        Assertions.assertNotNull(postLikes);
         postLikes.forEach(log::info);
+        Assertions.assertEquals(heartsCount, postLikes.size());
     }
 
     @Test
     public void testDelete() {
         postLikeRepository.deleteById(heartId);
         Optional<PostLike> result = postLikeRepository.findById(heartId);
-
-        Assertions.assertEquals(result, Optional.empty());
+        Assertions.assertEquals(Optional.empty(), result);
     }
 
     @Test
     public void testDeleteByPost() {
         List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
-
-        postLikes.forEach(heart -> {
-            Optional<PostLike> result = postLikeRepository.findById(heart.getId());
-            Assertions.assertEquals(result, Optional.empty());
+        postLikes.forEach(postLike -> {
+            Optional<PostLike> result = postLikeRepository.findById(postLike.getId());
+            Assertions.assertEquals(Optional.empty(), result);
         });
+    }
+
+    @Test
+    public void testDeleteByMember() {
+        memberRepository.deleteById(userId);
+        Optional<PostLike> postLike = postLikeRepository.findById(heartId);
+        Assertions.assertEquals(Optional.empty(), postLike);
     }
 
 }
