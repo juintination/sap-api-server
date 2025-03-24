@@ -110,7 +110,7 @@ public class PostLikeRepositoryTests {
 
     @Test
     public void testReadListByPost() {
-        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByRegDate(Post.builder().id(postId).build());
+        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
         Assertions.assertNotNull(postLikes);
         postLikes.forEach(log::info);
     }
@@ -125,7 +125,7 @@ public class PostLikeRepositoryTests {
 
     @Test
     public void testDeleteByPost() {
-        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByRegDate(Post.builder().id(postId).build());
+        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
         postRepository.deleteById(postId);
 
         postLikes.forEach(heart -> {

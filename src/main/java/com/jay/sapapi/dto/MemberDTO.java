@@ -28,6 +28,6 @@ public class MemberDTO {
 
     private MemberRole role;
 
-    private LocalDateTime regDate, modDate;
+    private LocalDateTime createdAt, modifiedAt;
 
 }

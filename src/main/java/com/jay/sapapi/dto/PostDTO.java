@@ -27,5 +27,5 @@ public class PostDTO {
 
     private String writerProfileImageUrl;
 
-    private LocalDateTime regDate, modDate;
+    private LocalDateTime createdAt, modifiedAt;
 }

@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 public abstract class TimeStampedEntity {
 
     @CreatedDate
-    @Column(name = "regdate", updatable = false)
-    private LocalDateTime regDate;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "moddate")
-    private LocalDateTime modDate;
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
 }

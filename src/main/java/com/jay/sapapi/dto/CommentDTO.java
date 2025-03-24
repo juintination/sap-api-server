@@ -21,6 +21,6 @@ public class CommentDTO {
 
     private String commenterProfileImageUrl;
 
-    private LocalDateTime regDate, modDate;
+    private LocalDateTime createdAt, modifiedAt;
 
 }

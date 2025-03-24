@@ -30,8 +30,8 @@ public interface MemberService {
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
                 .role(member.getMemberRole())
-                .regDate(member.getRegDate())
-                .modDate(member.getModDate())
+                .createdAt(member.getCreatedAt())
+                .modifiedAt(member.getModifiedAt())
                 .build();
     }
 

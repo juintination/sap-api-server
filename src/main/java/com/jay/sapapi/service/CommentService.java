@@ -30,8 +30,8 @@ public interface CommentService {
                 .commenterEmail(comment.getCommenter().getEmail())
                 .commenterNickname(comment.getCommenter().getNickname())
                 .commenterProfileImageUrl(comment.getCommenter().getProfileImageUrl())
-                .regDate(comment.getRegDate())
-                .modDate(comment.getModDate())
+                .createdAt(comment.getCreatedAt())
+                .modifiedAt(comment.getModifiedAt())
                 .build();
     }
 

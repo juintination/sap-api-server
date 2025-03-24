@@ -18,6 +18,6 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
             "AND h.member.id = :userId")
     Optional<PostLike> findByPostIdAndUserId(@Param("postId") Long postId, @Param("userId") Long userId);
 
-    List<PostLike> getPostLikesByPostOrderByRegDate(Post post);
+    List<PostLike> getPostLikesByPostOrderByCreatedAt(Post post);
 
 }

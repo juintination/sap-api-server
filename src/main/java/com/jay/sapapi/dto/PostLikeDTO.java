@@ -15,6 +15,6 @@ public class PostLikeDTO {
 
     private Long id, postId, userId;
 
-    private LocalDateTime regDate;
+    private LocalDateTime createdAt;
 
 }

@@ -24,7 +24,7 @@ public interface PostLikeService {
                 .id(postLike.getId())
                 .postId(postLike.getPost().getId())
                 .userId(postLike.getMember().getId())
-                .regDate(postLike.getRegDate())
+                .createdAt(postLike.getCreatedAt())
                 .build();
     }
 

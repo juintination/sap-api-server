@@ -35,7 +35,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public List<PostLikeDTO> getHeartsByPost(Long postId) {
         PostDTO postDTO = postService.get(postId);
-        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByRegDate(postService.dtoToEntity(postDTO));
+        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.dtoToEntity(postDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 

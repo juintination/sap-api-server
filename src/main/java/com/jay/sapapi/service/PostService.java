@@ -37,8 +37,8 @@ public interface PostService {
                 .postImageUrl(post.getPostImageUrl())
                 .commentCount(commentCount)
                 .likeCount(likeCount)
-                .regDate(post.getRegDate())
-                .modDate(post.getModDate())
+                .createdAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
                 .build();
     }
 
