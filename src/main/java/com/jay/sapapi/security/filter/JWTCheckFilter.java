@@ -28,22 +28,20 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
 
         String path = request.getRequestURI();
+        if (request.getMethod().equals("GET")) {
+            if (path.equals("/") || path.equals("/docs") || path.startsWith("/api/users/") || path.startsWith("/api/images/")) {
+                return true;
+            }
+        }
+
         if (request.getMethod().equals("POST")) {
-            if (path.equals("/api/users/") || path.startsWith("/api/auth/")) {
-                return true;
-            } else if (path.equals("/api/images/")) {
+            if (path.equals("/api/users/") || path.startsWith("/api/auth/") || path.equals("/api/images/")) {
                 return true;
             }
-        } else if (request.getMethod().equals("PUT")) {
+        }
+
+        if (request.getMethod().equals("PUT")) {
             if (path.equals("/api/auth/tokens")) {
-                return true;
-            }
-        } else if (request.getMethod().equals("GET")) {
-            if (path.startsWith("/api/users/")) {
-                return true;
-            } else if (path.startsWith("/api/images/")) {
-                return true;
-            } else if (path.equals("/") || path.equals("/docs")) {
                 return true;
             }
         }
