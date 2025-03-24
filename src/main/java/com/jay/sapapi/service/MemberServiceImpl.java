@@ -57,7 +57,6 @@ public class MemberServiceImpl implements MemberService {
     public void modify(MemberDTO memberDTO) {
         Member member = memberRepository.findById(memberDTO.getId())
                 .orElseThrow(() -> new NoSuchElementException("userNotFound"));
-        log.info("memberDTO: " + memberDTO);
 
         if (memberDTO.getEmail() != null && !memberDTO.getEmail().isEmpty()) {
             if (!member.getEmail().equals(memberDTO.getEmail()) &&
