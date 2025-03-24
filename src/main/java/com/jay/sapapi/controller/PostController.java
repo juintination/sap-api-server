@@ -34,7 +34,7 @@ public class PostController {
     }
 
     @PostMapping("/")
-    @PreAuthorize("#dto.writerId == authentication.principal.userId")
+    @PreAuthorize("#dto.userId == authentication.principal.userId")
     public ResponseEntity<?> register(PostDTO dto) {
         long postId = postService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,7 +42,7 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    @PreAuthorize("#dto.writerId == authentication.principal.userId")
+    @PreAuthorize("#dto.userId == authentication.principal.userId")
     public Map<String, Object> modify(@PathVariable Long postId, PostDTO dto) {
         dto.setId(postId);
         postService.modify(dto);

@@ -31,7 +31,7 @@ public class CommentController {
     }
 
     @PostMapping("/")
-    @PreAuthorize("#dto.commenterId == authentication.principal.userId")
+    @PreAuthorize("#dto.userId == authentication.principal.userId")
     public ResponseEntity<?> register(CommentDTO dto) {
         long commentId = commentService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -39,7 +39,7 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    @PreAuthorize("#dto.commenterId == authentication.principal.userId")
+    @PreAuthorize("#dto.userId == authentication.principal.userId")
     public Map<String, Object> modify(@PathVariable Long commentId, CommentDTO dto) {
         dto.setId(commentId);
         commentService.modify(dto);

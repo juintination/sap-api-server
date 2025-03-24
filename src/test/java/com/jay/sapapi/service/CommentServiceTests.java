@@ -61,7 +61,7 @@ public class CommentServiceTests {
         postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
-                .writerId(userId)
+                .userId(userId)
                 .build());
 
         for (int i = 0; i < 5; i++) {
@@ -75,7 +75,7 @@ public class CommentServiceTests {
 
             commentId = commentService.register(CommentDTO.builder()
                     .postId(postId)
-                    .commenterId(commenterId)
+                    .userId(commenterId)
                     .content(faker.lorem().sentence())
                     .build());
         }

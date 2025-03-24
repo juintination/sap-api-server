@@ -27,7 +27,7 @@ public interface PostService {
     default PostDTO entityToDTO(Post post, Member writer, int commentCount, int likeCount) {
         return PostDTO.builder()
                 .id(post.getId())
-                .writerId(writer.getId())
+                .userId(writer.getId())
                 .writerNickname(writer.getNickname())
                 .writerEmail(writer.getEmail())
                 .writerProfileImageUrl(writer.getProfileImageUrl())

@@ -23,7 +23,7 @@ public class Comment extends TimeStampedEntity {
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commenter_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Member commenter;
 
     public void changeContent(String content) {

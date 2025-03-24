@@ -26,7 +26,7 @@ public interface CommentService {
                 .id(comment.getId())
                 .postId(comment.getPost().getId())
                 .content(comment.getContent())
-                .commenterId(comment.getCommenter().getId())
+                .userId(comment.getCommenter().getId())
                 .commenterEmail(comment.getCommenter().getEmail())
                 .commenterNickname(comment.getCommenter().getNickname())
                 .commenterProfileImageUrl(comment.getCommenter().getProfileImageUrl())

@@ -28,7 +28,7 @@ public class Post extends TimeStampedEntity {
     private Long viewCount = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Member writer;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -56,12 +56,12 @@ public class PostLikeServiceTests {
                 .nickname(faker.name().name())
                 .role(MemberRole.USER)
                 .build();
-        Long writerId = memberService.register(writerDTO);
+        Long userId = memberService.register(writerDTO);
 
         postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
-                .writerId(writerId)
+                .userId(userId)
                 .build());
 
         for (int i = 0; i < 5; i++) {
@@ -71,11 +71,11 @@ public class PostLikeServiceTests {
                     .nickname(faker.name().name())
                     .role(MemberRole.USER)
                     .build();
-            userId = memberService.register(memberDTO);
+            this.userId = memberService.register(memberDTO);
 
             postLikeService.register(PostLikeDTO.builder()
                     .postId(postId)
-                    .userId(userId)
+                    .userId(this.userId)
                     .build());
         }
 

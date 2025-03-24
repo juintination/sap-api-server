@@ -54,7 +54,7 @@ public class PostServiceTests {
         postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
-                .writerId(userId)
+                .userId(userId)
                 .build());
 
     }

@@ -70,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
                 .id(commentDTO.getId())
                 .content(commentDTO.getContent())
                 .post(Post.builder().id(commentDTO.getPostId()).build())
-                .commenter(Member.builder().id(commentDTO.getCommenterId()).build())
+                .commenter(Member.builder().id(commentDTO.getUserId()).build())
                 .build();
     }
 

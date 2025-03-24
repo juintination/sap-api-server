@@ -87,7 +87,7 @@ public class PostServiceImpl implements PostService {
     public Post dtoToEntity(PostDTO postDTO) {
         return Post.builder()
                 .id(postDTO.getId())
-                .writer(Member.builder().id(postDTO.getWriterId()).build())
+                .writer(Member.builder().id(postDTO.getUserId()).build())
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
                 .viewCount(postDTO.getViewCount() != null ? postDTO.getViewCount() : 0)
