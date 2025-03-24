@@ -1,15 +1,17 @@
 package com.jay.sapapi.dto;
 
-import com.jay.sapapi.domain.MemberRole;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import com.jay.sapapi.domain.MemberRole;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @ToString
 @Builder
 @AllArgsConstructor
