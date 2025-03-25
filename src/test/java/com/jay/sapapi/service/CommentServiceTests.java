@@ -5,6 +5,7 @@ import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.CommentDTO;
 import com.jay.sapapi.dto.MemberDTO;
 import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -120,6 +121,24 @@ public class CommentServiceTests {
     }
 
     @Nested
+    @DisplayName("댓글 등록 테스트")
+    class RegisterTests {
+
+        @Test
+        @DisplayName("댓글 내용 없음")
+        public void testRegister() {
+            CommentDTO dto = CommentDTO.builder()
+                    .postId(postId)
+                    .userId(commenterId)
+                    .content(null)
+                    .build();
+
+            Assertions.assertThrows(CustomValidationException.class, () -> commentService.register(dto));
+        }
+
+    }
+
+    @Nested
     @DisplayName("댓글 수정 테스트")
     class ModifyTests {
 
@@ -134,6 +153,18 @@ public class CommentServiceTests {
             Assertions.assertEquals("ModifiedContent", result.getContent());
         }
 
+        @Test
+        @DisplayName("존재하지 않는 댓글 수정")
+        public void testModifyInvalidComment() {
+            CommentDTO commentDTO = CommentDTO.builder()
+                    .id(0L)
+                    .content("ModifiedContent")
+                    .build();
+
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.modify(commentDTO));
+            Assertions.assertEquals("commentNotFound", e.getMessage());
+        }
+
     }
 
     @Nested
@@ -144,7 +175,15 @@ public class CommentServiceTests {
         @DisplayName("댓글 삭제")
         public void testRemove() {
             commentService.remove(commentId);
-            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+            Assertions.assertEquals("commentNotFound", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 댓글 삭제")
+        public void testRemoveNonExistent() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.remove(0L));
+            Assertions.assertEquals("commentNotFound", e.getMessage());
         }
 
         @Test
@@ -154,7 +193,8 @@ public class CommentServiceTests {
             postService.remove(postId);
 
             comments.forEach(comment -> {
-                Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
+                NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
+                Assertions.assertEquals("commentNotFound", e.getMessage());
             });
         }
 
@@ -162,7 +202,8 @@ public class CommentServiceTests {
         @DisplayName("회원 삭제 시 댓글 삭제")
         public void testDeleteByMemberDelete() {
             memberService.remove(commenterId);
-            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+            Assertions.assertEquals("commentNotFound", e.getMessage());
         }
 
     }

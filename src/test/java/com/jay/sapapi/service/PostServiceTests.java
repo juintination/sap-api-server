@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.MemberDTO;
 import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -106,6 +108,50 @@ public class PostServiceTests {
     }
 
     @Nested
+    @DisplayName("게시글 등록 테스트")
+    class RegisterTests {
+
+        @Test
+        @DisplayName("게시글 제목 없음")
+        public void testRegisterEmailNull() {
+            PostDTO postDTO = PostDTO.builder()
+                    .title(null)
+                    .content(faker.lorem().sentence())
+                    .userId(userId)
+                    .build();
+
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postService.register(postDTO));
+            Assertions.assertEquals("invalidPostTitle", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("게시글 내용 없음")
+        public void testRegisterNicknameNull() {
+            PostDTO postDTO = PostDTO.builder()
+                    .title(faker.book().title())
+                    .content(null)
+                    .userId(userId)
+                    .build();
+
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postService.register(postDTO));
+            Assertions.assertEquals("invalidPostContent", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("게시글 작성자 없음")
+        public void testRegisterRoleNull() {
+            PostDTO postDTO = PostDTO.builder()
+                    .title(faker.book().title())
+                    .content(faker.lorem().sentence())
+                    .userId(null)
+                    .build();
+
+            Assertions.assertThrows(InvalidDataAccessApiUsageException.class, () -> postService.register(postDTO));
+        }
+
+    }
+
+    @Nested
     @DisplayName("게시글 수정 테스트")
     class ModifyTests {
 
@@ -127,6 +173,19 @@ public class PostServiceTests {
             Assertions.assertNotNull(result.getPostImageUrl());
         }
 
+        @Test
+        @DisplayName("존재하지 않는 게시글 수정")
+        public void testModifyInvalidPost() {
+            PostDTO postDTO = PostDTO.builder()
+                    .id(0L)
+                    .title("ModifiedTitle")
+                    .content("ModifiedContent")
+                    .build();
+
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postService.modify(postDTO));
+            Assertions.assertEquals("postNotFound", e.getMessage());
+        }
+
     }
 
     @Nested
@@ -137,7 +196,15 @@ public class PostServiceTests {
         @DisplayName("게시글 삭제")
         public void testRemove() {
             postService.remove(postId);
-            Assertions.assertThrows(RuntimeException.class, () -> postService.get(postId));
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postService.get(postId));
+            Assertions.assertEquals("postNotFound", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시글 삭제")
+        public void testRemoveInvalidPost() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postService.remove(0L));
+            Assertions.assertEquals("postNotFound", e.getMessage());
         }
 
         @Test

@@ -80,6 +80,34 @@ public class MemberServiceTests {
             Assertions.assertEquals(memberDTO.getNickname(), dto.getNickname());
         }
 
+        @Test
+        @DisplayName("회원 조회 실패")
+        public void testGetFail() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> memberService.get(0L));
+            Assertions.assertEquals("userNotFound", e.getMessage());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("회원가입 테스트")
+    class RegisterTests {
+
+        @Test
+        @DisplayName("이메일 중복")
+        public void testRegisterDuplicateEmail() {
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(memberDTO));
+            Assertions.assertEquals("emailAlreadyExists", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("닉네임 중복")
+        public void testRegisterDuplicateNickname() {
+            memberDTO.setEmail(faker.internet().emailAddress());
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(memberDTO));
+            Assertions.assertEquals("nicknameAlreadyExists", e.getMessage());
+        }
+
     }
 
     @Nested
@@ -147,6 +175,42 @@ public class MemberServiceTests {
             Assertions.assertEquals(nickname, result.getNickname());
         }
 
+        @Test
+        @DisplayName("이메일 중복 실패")
+        public void testModifyDuplicateEmail() {
+            Long testUserId = memberService.register(MemberDTO.builder()
+                    .email(faker.internet().emailAddress())
+                    .password(faker.internet().password())
+                    .nickname(faker.name().name())
+                    .role(MemberRole.USER)
+                    .build());
+
+            MemberDTO updatedMember = MemberDTO.builder()
+                    .id(testUserId)
+                    .email(memberDTO.getEmail())
+                    .build();
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(updatedMember));
+            Assertions.assertEquals("emailAlreadyExists", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("닉네임 중복 실패")
+        public void testModifyDuplicateNickname() {
+            Long testUserId = memberService.register(MemberDTO.builder()
+                    .email(faker.internet().emailAddress())
+                    .password(faker.internet().password())
+                    .nickname(faker.name().name())
+                    .role(MemberRole.USER)
+                    .build());
+
+            MemberDTO updatedMember = MemberDTO.builder()
+                    .id(testUserId)
+                    .nickname(memberDTO.getNickname())
+                    .build();
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(updatedMember));
+            Assertions.assertEquals("nicknameAlreadyExists", e.getMessage());
+        }
+
     }
 
     @Nested
@@ -158,6 +222,13 @@ public class MemberServiceTests {
         public void testRemove() {
             memberService.remove(userId);
             Assertions.assertThrows(NoSuchElementException.class, () -> memberService.get(userId));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 회원 삭제")
+        public void testRemoveInvalidUser() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> memberService.remove(0L));
+            Assertions.assertEquals("userNotFound", e.getMessage());
         }
 
     }
