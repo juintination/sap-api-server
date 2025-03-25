@@ -10,10 +10,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @SpringBootTest
 @Log4j2
@@ -28,7 +30,11 @@ public class PostServiceTests {
 
     private final Faker faker = new Faker();
 
-    private Long postId;
+    private final int POST_COUNT = 10;
+
+    private Long postId, userId;
+
+    private String title, content;
 
     @BeforeAll
     public void setup() {
@@ -39,9 +45,8 @@ public class PostServiceTests {
         log.info(memberService.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testRegister() {
+    public void registerPosts() {
 
         MemberDTO memberDTO = MemberDTO.builder()
                 .email(faker.internet().emailAddress())
@@ -49,22 +54,30 @@ public class PostServiceTests {
                 .nickname(faker.name().name())
                 .role(MemberRole.USER)
                 .build();
-        Long userId = memberService.register(memberDTO);
+        userId = memberService.register(memberDTO);
 
-        postId = postService.register(PostDTO.builder()
-                .title(faker.book().title())
-                .content(faker.lorem().sentence())
-                .userId(userId)
-                .build());
+        for (int i = 0; i < POST_COUNT; i++) {
+            title = faker.book().title();
+            content = faker.lorem().sentence();
+            postId = postService.register(PostDTO.builder()
+                    .title(title)
+                    .content(content)
+                    .userId(userId)
+                    .build());
+        }
 
+    }
+
+    @AfterEach
+    public void cleanup() {
+        postService.getList().forEach(postDTO -> postService.remove(postDTO.getId()));
     }
 
     @Test
     public void testGet() {
         PostDTO postDTO = postService.get(postId);
-        Assertions.assertNotNull(postDTO);
-        log.info("PostDTO: " + postDTO);
-        log.info(postService.dtoToEntity(postDTO));
+        Assertions.assertEquals(title, postDTO.getTitle());
+        Assertions.assertEquals(content, postDTO.getContent());
     }
 
     @Test
@@ -72,14 +85,12 @@ public class PostServiceTests {
         postService.incrementViewCount(postId);
         PostDTO postDTO = postService.get(postId);
         Assertions.assertEquals(1, postDTO.getViewCount());
-        log.info("PostDTO: " + postDTO);
-        log.info("ViewCount: " + postDTO.getViewCount());
     }
 
     @Test
     public void testGetList() {
         List<PostDTO> result = postService.getList();
-        log.info("List: " + result);
+        Assertions.assertEquals(POST_COUNT, result.size());
     }
 
     @Test
@@ -97,13 +108,18 @@ public class PostServiceTests {
         Assertions.assertEquals("ModifiedTitle", result.getTitle());
         Assertions.assertEquals("ModifiedContent", result.getContent());
         Assertions.assertNotNull(result.getPostImageUrl());
-        log.info("Modified PostDTO: " + result);
     }
 
     @Test
     public void testRemove() {
         postService.remove(postId);
         Assertions.assertThrows(RuntimeException.class, () -> postService.get(postId));
+    }
+
+    @Test
+    public void testRemoveByMember() {
+        memberService.remove(userId);
+        Assertions.assertThrows(NoSuchElementException.class, () -> postService.get(postId));
     }
 
 }

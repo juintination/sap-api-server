@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -33,7 +34,11 @@ public class CommentServiceTests {
 
     private final Faker faker = new Faker();
 
-    private Long postId, commentId;
+    private final int COMMENT_COUNT = 5;
+
+    private Long postId, commentId, commenterId;
+
+    private String content;
 
     @BeforeAll
     public void setup() {
@@ -46,9 +51,8 @@ public class CommentServiceTests {
         log.info(memberService.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testRegister() {
+    public void registerComments() {
 
         MemberDTO writerDTO = MemberDTO.builder()
                 .email(faker.internet().emailAddress())
@@ -56,43 +60,52 @@ public class CommentServiceTests {
                 .nickname(faker.name().name())
                 .role(MemberRole.USER)
                 .build();
-        Long userId = memberService.register(writerDTO);
+        Long writerId = memberService.register(writerDTO);
 
         postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
-                .userId(userId)
+                .userId(writerId)
                 .build());
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < COMMENT_COUNT; i++) {
             MemberDTO memberDTO = MemberDTO.builder()
                     .email(faker.internet().emailAddress())
                     .password(faker.internet().password())
                     .nickname(faker.name().name())
                     .role(MemberRole.USER)
                     .build();
-            Long commenterId = memberService.register(memberDTO);
+            commenterId = memberService.register(memberDTO);
 
+            content = faker.lorem().sentence();
             commentId = commentService.register(CommentDTO.builder()
                     .postId(postId)
                     .userId(commenterId)
-                    .content(faker.lorem().sentence())
+                    .content(content)
                     .build());
         }
 
     }
 
+    @AfterEach
+    public void cleanup() {
+        try {
+            commentService.getCommentsByPostId(postId).forEach(commentDTO -> commentService.remove(commentDTO.getId()));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     @Test
     public void testGet() {
         CommentDTO commentDTO = commentService.get(commentId);
-        Assertions.assertNotNull(commentDTO);
-        log.info("CommentDTO: " + commentDTO);
+        Assertions.assertEquals(content, commentDTO.getContent());
     }
 
     @Test
     public void testGetListByPostId() {
         List<CommentDTO> result = commentService.getCommentsByPostId(postId);
-        log.info("List: " + result);
+        Assertions.assertEquals(COMMENT_COUNT, result.size());
     }
 
     @Test
@@ -103,7 +116,6 @@ public class CommentServiceTests {
 
         CommentDTO result = commentService.get(commentId);
         Assertions.assertEquals("ModifiedContent", result.getContent());
-        log.info("Modified CommentDTO: " + result);
     }
 
     @Test
@@ -120,6 +132,12 @@ public class CommentServiceTests {
         comments.forEach(comment -> {
             Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
         });
+    }
+
+    @Test
+    public void testDeleteByMember() {
+        memberService.remove(commenterId);
+        Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
     }
 
 }

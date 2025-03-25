@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -33,6 +34,8 @@ public class PostLikeServiceTests {
 
     private final Faker faker = new Faker();
 
+    private final int POST_LIKE_COUNT = 5;
+
     private Long postId, userId;
 
     @BeforeAll
@@ -46,9 +49,8 @@ public class PostLikeServiceTests {
         log.info(memberService.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testRegister() {
+    public void registerPostLikes() {
 
         MemberDTO writerDTO = MemberDTO.builder()
                 .email(faker.internet().emailAddress())
@@ -56,42 +58,51 @@ public class PostLikeServiceTests {
                 .nickname(faker.name().name())
                 .role(MemberRole.USER)
                 .build();
-        Long userId = memberService.register(writerDTO);
+        Long writerId = memberService.register(writerDTO);
 
         postId = postService.register(PostDTO.builder()
                 .title(faker.book().title())
                 .content(faker.lorem().sentence())
-                .userId(userId)
+                .userId(writerId)
                 .build());
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < POST_LIKE_COUNT; i++) {
             MemberDTO memberDTO = MemberDTO.builder()
                     .email(faker.internet().emailAddress())
                     .password(faker.internet().password())
                     .nickname(faker.name().name())
                     .role(MemberRole.USER)
                     .build();
-            this.userId = memberService.register(memberDTO);
+            userId = memberService.register(memberDTO);
 
             postLikeService.register(PostLikeDTO.builder()
                     .postId(postId)
-                    .userId(this.userId)
+                    .userId(userId)
                     .build());
         }
 
     }
 
+    @AfterEach
+    public void cleanup() {
+        try {
+            postLikeService.getHeartsByPost(postId).forEach(postLikeDTO -> postLikeService.remove(postLikeDTO.getPostId(), postLikeDTO.getUserId()));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     @Test
     public void testGet() {
         PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
-        Assertions.assertNotNull(postLikeDTO);
-        log.info("HeartDTO: " + postLikeDTO);
+        Assertions.assertEquals(postId, postLikeDTO.getPostId());
+        Assertions.assertEquals(userId, postLikeDTO.getUserId());
     }
 
     @Test
     public void testGetListByPostId() {
         List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
-        log.info("List: " + result);
+        Assertions.assertEquals(POST_LIKE_COUNT, result.size());
     }
 
     @Test
@@ -108,6 +119,12 @@ public class PostLikeServiceTests {
         for (PostLikeDTO heart : hearts) {
             Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
         }
+    }
+
+    @Test
+    public void testDeleteByMember() {
+        memberService.remove(userId);
+        Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
     }
 
 }

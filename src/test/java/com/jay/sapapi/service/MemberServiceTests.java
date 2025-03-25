@@ -25,6 +25,8 @@ public class MemberServiceTests {
 
     private final Faker faker = new Faker();
 
+    private MemberDTO memberDTO;
+
     private Long userId;
 
     @BeforeAll
@@ -33,13 +35,10 @@ public class MemberServiceTests {
         log.info(memberService.getClass().getName());
     }
 
-    @Test
     @BeforeEach
-    public void testRegister() {
-        String email = "sample@example.com";
-
-        MemberDTO memberDTO = MemberDTO.builder()
-                .email(email)
+    public void registerMember() {
+        memberDTO = MemberDTO.builder()
+                .email("sample@example.com")
                 .password(faker.internet().password())
                 .nickname("SampleUser")
                 .role(MemberRole.USER)
@@ -59,22 +58,51 @@ public class MemberServiceTests {
     @Test
     public void testGet() {
         MemberDTO memberDTO = memberService.get(userId);
-        log.info(memberDTO);
+        Assertions.assertEquals(this.memberDTO.getEmail(), memberDTO.getEmail());
+        Assertions.assertEquals(this.memberDTO.getNickname(), memberDTO.getNickname());
+    }
+
+    @Test
+    public void testExistsByEmail() {
+        Assertions.assertTrue(memberService.existsByEmail(memberDTO.getEmail()));
+    }
+
+    @Test
+    public void testExistsByNickname() {
+        Assertions.assertTrue(memberService.existsByNickname(memberDTO.getNickname()));
+    }
+
+    @Test
+    public void testCheckPasswordInvalidUser() {
+        NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> memberService.checkPassword(0L, faker.internet().password()));
+        Assertions.assertEquals("userNotFound", e.getMessage());
+    }
+
+    @Test
+    public void testCheckPasswordInvalidPassword() {
+        CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.checkPassword(userId, faker.internet().password()));
+        Assertions.assertEquals("invalidPassword", e.getMessage());
     }
 
     @Test
     public void testModify() {
+        String email = "modified@example.com";
+        String nickname = "ModifiedUser";
         MemberDTO memberDTO = MemberDTO.builder()
                 .id(userId)
-                .email("Modified@example.com")
-                .password("NewPassword")
-                .nickname("ModifiedUser")
+                .email(email)
+                .password(faker.internet().password())
+                .nickname(nickname)
                 .role(MemberRole.MANAGER)
                 .build();
         memberService.modify(memberDTO);
 
         MemberDTO result = memberService.get(userId);
-        log.info(result);
+        Assertions.assertNotEquals(this.memberDTO.getEmail(), result.getEmail());
+        Assertions.assertEquals(email, result.getEmail());
+
+        Assertions.assertNotEquals(this.memberDTO.getNickname(), result.getNickname());
+        Assertions.assertEquals(nickname, result.getNickname());
     }
 
     @Test
