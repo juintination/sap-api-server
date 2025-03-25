@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +27,7 @@ import java.util.Optional;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("PostRepositoryTests")
 public class PostRepositoryTests {
 
     @Autowired
@@ -67,7 +70,6 @@ public class PostRepositoryTests {
 
     @BeforeEach
     public void insertPosts() {
-
         member = memberRepository.save(Member.builder()
                 .email(faker.internet().emailAddress())
                 .password(passwordEncoder.encode(faker.internet().password()))
@@ -102,7 +104,6 @@ public class PostRepositoryTests {
                     .build();
             postLikeRepository.save(postLike);
         }
-
     }
 
     @AfterEach
@@ -113,83 +114,99 @@ public class PostRepositoryTests {
         memberRepository.deleteAll();
     }
 
-    @Test
-    @Transactional(readOnly = true)
-    public void testRead() {
-        Optional<Post> result = postRepository.findById(postId);
-        Post post = result.orElseThrow();
-        Assertions.assertEquals(member, post.getWriter());
-        Assertions.assertEquals(title, post.getTitle());
-        Assertions.assertEquals(content, post.getContent());
-    }
+    @Nested
+    @DisplayName("조회 테스트")
+    class ReadTests {
 
-    @Test
-    public void testReadPostByPostId() {
-        Object result = postRepository.getPostByPostId(postId);
-        Object[] arr = (Object[]) result;
-        log.info(Arrays.toString(arr));
-
-        Post post = (Post) arr[0];
-        Assertions.assertEquals(title, post.getTitle());
-        Assertions.assertEquals(content, post.getContent());
-
-        Member writer = (Member) arr[1];
-        Assertions.assertEquals(member.toString(), writer.toString());
-    }
-
-    @Test
-    @Transactional(readOnly = true)
-    public void testReadAll() {
-        log.info("Read all posts");
-        List<Post> result = postRepository.findAll();
-        Assertions.assertEquals(POST_COUNT, result.size());
-        result.forEach(post -> {
-            log.info("Post: {}", post);
-            Assertions.assertEquals(title, post.getTitle());
-            Assertions.assertEquals(content, post.getContent());
-
-            log.info("Writer: {}", post.getWriter());
+        @Test
+        @DisplayName("ID로 게시글 조회")
+        @Transactional(readOnly = true)
+        public void testRead() {
+            Optional<Post> result = postRepository.findById(postId);
+            Post post = result.orElseThrow();
             Assertions.assertEquals(member, post.getWriter());
-        });
-    }
+            Assertions.assertEquals(title, post.getTitle());
+            Assertions.assertEquals(content, post.getContent());
+        }
 
-    @Test
-    public void testReadAllWithoutTransactional() {
-        log.info("Read all posts without @Transactional annotation");
-        List<Object> result = postRepository.getAllPosts();
-        Assertions.assertEquals(POST_COUNT, result.size());
-        result.forEach(arr -> {
-            Object[] entity = (Object[]) arr;
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 Id로 게시글 조회")
+        public void testReadWithoutTransactional() {
+            Object result = postRepository.getPostByPostId(postId);
+            Object[] arr = (Object[]) result;
+            log.info(Arrays.toString(arr));
 
-            Post post = (Post) entity[0];
+            Post post = (Post) arr[0];
             Assertions.assertEquals(title, post.getTitle());
             Assertions.assertEquals(content, post.getContent());
 
-            Member writer = (Member) entity[1];
+            Member writer = (Member) arr[1];
             Assertions.assertEquals(member.toString(), writer.toString());
+        }
 
-            Long commentsCount = (Long) entity[2];
-            Assertions.assertEquals(this.COMMENT_COUNT, commentsCount);
-            log.info("Comments Count: {}", entity[2]);
+        @Test
+        @DisplayName("모든 게시글 조회")
+        @Transactional(readOnly = true)
+        public void testReadAll() {
+            List<Post> result = postRepository.findAll();
+            Assertions.assertEquals(POST_COUNT, result.size());
+            result.forEach(post -> {
+                log.info("Post: {}", post);
+                Assertions.assertEquals(title, post.getTitle());
+                Assertions.assertEquals(content, post.getContent());
 
-            Long heartsCount = (Long) entity[3];
-            Assertions.assertEquals(1, heartsCount);
-            log.info("Hearts Count: {}", entity[3]);
-        });
+                log.info("Writer: {}", post.getWriter());
+                Assertions.assertEquals(member, post.getWriter());
+            });
+        }
+
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 모든 게시글 조회")
+        public void testReadAllWithoutTransactional() {
+            List<Object> result = postRepository.getAllPosts();
+            Assertions.assertEquals(POST_COUNT, result.size());
+            result.forEach(arr -> {
+                Object[] entity = (Object[]) arr;
+
+                Post post = (Post) entity[0];
+                Assertions.assertEquals(title, post.getTitle());
+                Assertions.assertEquals(content, post.getContent());
+
+                Member writer = (Member) entity[1];
+                Assertions.assertEquals(member.toString(), writer.toString());
+
+                Long commentsCount = (Long) entity[2];
+                Assertions.assertEquals(COMMENT_COUNT, commentsCount);
+                log.info("Comments Count: {}", entity[2]);
+
+                Long heartsCount = (Long) entity[3];
+                Assertions.assertEquals(1, heartsCount);
+                log.info("Hearts Count: {}", entity[3]);
+            });
+        }
+
     }
 
-    @Test
-    public void testDelete() {
-        postRepository.deleteById(postId);
-        Optional<Post> result = postRepository.findById(postId);
-        Assertions.assertEquals(result, Optional.empty());
-    }
+    @Nested
+    @DisplayName("삭제 테스트")
+    class DeleteTests {
 
-    @Test
-    public void testDeleteByMember() {
-        memberRepository.deleteById(member.getId());
-        Optional<Post> post = postRepository.findById(postId);
-        Assertions.assertEquals(Optional.empty(), post);
+        @Test
+        @DisplayName("Id로 게시글 삭제")
+        public void testDelete() {
+            postRepository.deleteById(postId);
+            Optional<Post> result = postRepository.findById(postId);
+            Assertions.assertEquals(result, Optional.empty());
+        }
+
+        @Test
+        @DisplayName("회원 삭제 시 게시글 삭제")
+        public void testDeleteByMemberDelete() {
+            memberRepository.deleteById(member.getId());
+            Optional<Post> post = postRepository.findById(postId);
+            Assertions.assertEquals(Optional.empty(), post);
+        }
+
     }
 
 }

@@ -10,6 +10,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,6 +21,7 @@ import java.util.NoSuchElementException;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("MemberServiceTests")
 public class MemberServiceTests {
 
     @Autowired
@@ -55,60 +59,107 @@ public class MemberServiceTests {
         }
     }
 
-    @Test
-    public void testGet() {
-        MemberDTO memberDTO = memberService.get(userId);
-        Assertions.assertEquals(this.memberDTO.getEmail(), memberDTO.getEmail());
-        Assertions.assertEquals(this.memberDTO.getNickname(), memberDTO.getNickname());
+    @AfterEach
+    public void cleanup() {
+        try {
+            memberService.remove(userId);
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+        }
     }
 
-    @Test
-    public void testExistsByEmail() {
-        Assertions.assertTrue(memberService.existsByEmail(memberDTO.getEmail()));
+    @Nested
+    @DisplayName("회원 조회 테스트")
+    class ReadTests {
+
+        @Test
+        @DisplayName("단일 회원 조회")
+        public void testGet() {
+            MemberDTO dto = memberService.get(userId);
+            Assertions.assertEquals(memberDTO.getEmail(), dto.getEmail());
+            Assertions.assertEquals(memberDTO.getNickname(), dto.getNickname());
+        }
+
     }
 
-    @Test
-    public void testExistsByNickname() {
-        Assertions.assertTrue(memberService.existsByNickname(memberDTO.getNickname()));
+    @Nested
+    @DisplayName("회원 존재 여부 테스트")
+    class ExistTests {
+
+        @Test
+        @DisplayName("이메일로 회원 존재 여부 확인")
+        public void testExistsByEmail() {
+            Assertions.assertTrue(memberService.existsByEmail(memberDTO.getEmail()));
+        }
+
+        @Test
+        @DisplayName("닉네임으로 회원 존재 여부 확인")
+        public void testExistsByNickname() {
+            Assertions.assertTrue(memberService.existsByNickname(memberDTO.getNickname()));
+        }
+
     }
 
-    @Test
-    public void testCheckPasswordInvalidUser() {
-        NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> memberService.checkPassword(0L, faker.internet().password()));
-        Assertions.assertEquals("userNotFound", e.getMessage());
+    @Nested
+    @DisplayName("비밀번호 확인 테스트")
+    class PasswordTests {
+
+        @Test
+        @DisplayName("존재하지 않는 회원의 비밀번호 확인")
+        public void testCheckPasswordInvalidUser() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () ->
+                    memberService.checkPassword(0L, faker.internet().password()));
+            Assertions.assertEquals("userNotFound", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("잘못된 비밀번호 확인")
+        public void testCheckPasswordInvalidPassword() {
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () ->
+                    memberService.checkPassword(userId, faker.internet().password()));
+            Assertions.assertEquals("invalidPassword", e.getMessage());
+        }
+
     }
 
-    @Test
-    public void testCheckPasswordInvalidPassword() {
-        CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.checkPassword(userId, faker.internet().password()));
-        Assertions.assertEquals("invalidPassword", e.getMessage());
+    @Nested
+    @DisplayName("회원 정보 수정 테스트")
+    class ModifyTests {
+
+        @Test
+        @DisplayName("회원 정보 수정")
+        public void testModify() {
+            String email = "modified@example.com";
+            String nickname = "ModifiedUser";
+            MemberDTO updatedMember = MemberDTO.builder()
+                    .id(userId)
+                    .email(email)
+                    .password(faker.internet().password())
+                    .nickname(nickname)
+                    .role(MemberRole.MANAGER)
+                    .build();
+            memberService.modify(updatedMember);
+
+            MemberDTO result = memberService.get(userId);
+            Assertions.assertNotEquals(memberDTO.getEmail(), result.getEmail());
+            Assertions.assertEquals(email, result.getEmail());
+            Assertions.assertNotEquals(memberDTO.getNickname(), result.getNickname());
+            Assertions.assertEquals(nickname, result.getNickname());
+        }
+
     }
 
-    @Test
-    public void testModify() {
-        String email = "modified@example.com";
-        String nickname = "ModifiedUser";
-        MemberDTO memberDTO = MemberDTO.builder()
-                .id(userId)
-                .email(email)
-                .password(faker.internet().password())
-                .nickname(nickname)
-                .role(MemberRole.MANAGER)
-                .build();
-        memberService.modify(memberDTO);
+    @Nested
+    @DisplayName("회원 삭제 테스트")
+    class RemoveTests {
 
-        MemberDTO result = memberService.get(userId);
-        Assertions.assertNotEquals(this.memberDTO.getEmail(), result.getEmail());
-        Assertions.assertEquals(email, result.getEmail());
+        @Test
+        @DisplayName("회원 삭제")
+        public void testRemove() {
+            memberService.remove(userId);
+            Assertions.assertThrows(NoSuchElementException.class, () -> memberService.get(userId));
+        }
 
-        Assertions.assertNotEquals(this.memberDTO.getNickname(), result.getNickname());
-        Assertions.assertEquals(nickname, result.getNickname());
-    }
-
-    @Test
-    public void testRemove() {
-        memberService.remove(userId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> memberService.get(userId));
     }
 
 }

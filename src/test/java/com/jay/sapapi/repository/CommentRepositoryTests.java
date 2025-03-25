@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("CommentRepositoryTests")
 public class CommentRepositoryTests {
 
     @Autowired
@@ -90,7 +93,6 @@ public class CommentRepositoryTests {
                     .content(content)
                     .build()).getId();
         }
-
     }
 
     @AfterEach
@@ -100,50 +102,68 @@ public class CommentRepositoryTests {
         memberRepository.deleteAll();
     }
 
-    @Test
-    @Transactional(readOnly = true)
-    public void testRead() {
-        Optional<Comment> result = commentRepository.findById(commentId);
-        Comment comment = result.orElseThrow();
-        Assertions.assertEquals(content, comment.getContent());
+    @Nested
+    @DisplayName("조회 테스트")
+    class ReadTests {
+
+        @Test
+        @DisplayName("Id로 댓글 조회")
+        @Transactional(readOnly = true)
+        public void testRead() {
+            Optional<Comment> result = commentRepository.findById(commentId);
+            Comment comment = result.orElseThrow();
+            Assertions.assertEquals(content, comment.getContent());
+        }
+
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 Id로 댓글 조회")
+        public void testReadWithoutTransactional() {
+            Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
+            Comment comment = result.orElseThrow();
+            Assertions.assertEquals(content, comment.getContent());
+        }
+
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 게시글 Id로 댓글 리스트 조회")
+        public void testReadListByPost() {
+            List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
+            comments.forEach(log::info);
+            Assertions.assertEquals(COMMENT_COUNT, comments.size());
+        }
+
     }
 
-    @Test
-    public void testReadWithoutTransactional() {
-        Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
-        Comment comment = result.orElseThrow();
-        Assertions.assertEquals(content, comment.getContent());
-    }
+    @Nested
+    @DisplayName("삭제 테스트")
+    class DeleteTests {
 
-    @Test
-    public void testReadListByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
-        comments.forEach(log::info);
-        Assertions.assertEquals(COMMENT_COUNT, comments.size());
-    }
-
-    @Test
-    public void testDelete() {
-        commentRepository.deleteById(commentId);
-        Optional<Comment> result = commentRepository.findById(commentId);
-        Assertions.assertEquals(Optional.empty(), result);
-    }
-
-    @Test
-    public void testDeleteByPost() {
-        List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
-        postRepository.deleteById(postId);
-        comments.forEach(comment -> {
-            Optional<Comment> result = commentRepository.findById(comment.getId());
+        @Test
+        @DisplayName("Id로 댓글 삭제")
+        public void testDelete() {
+            commentRepository.deleteById(commentId);
+            Optional<Comment> result = commentRepository.findById(commentId);
             Assertions.assertEquals(Optional.empty(), result);
-        });
-    }
+        }
 
-    @Test
-    public void testDeleteByMember() {
-        memberRepository.deleteById(commenterId);
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        Assertions.assertEquals(Optional.empty(), comment);
+        @Test
+        @DisplayName("게시글 삭제 시 댓글 삭제")
+        public void testDeleteByPostDelete() {
+            List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
+            postRepository.deleteById(postId);
+            comments.forEach(comment -> {
+                Optional<Comment> result = commentRepository.findById(comment.getId());
+                Assertions.assertEquals(Optional.empty(), result);
+            });
+        }
+
+        @Test
+        @DisplayName("회원 삭제 시 댓글 삭제")
+        public void testDeleteByMemberDelete() {
+            memberRepository.deleteById(commenterId);
+            Optional<Comment> comment = commentRepository.findById(commentId);
+            Assertions.assertEquals(Optional.empty(), comment);
+        }
+
     }
 
 }

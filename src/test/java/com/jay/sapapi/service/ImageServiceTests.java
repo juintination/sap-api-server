@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -24,6 +25,7 @@ import java.util.Map;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("ImageServiceTests")
 public class ImageServiceTests {
 
     @Autowired
@@ -39,6 +41,7 @@ public class ImageServiceTests {
 
     @Test
     @BeforeEach
+    @DisplayName("이미지 추가")
     public void testRegister() throws IOException {
 
         Path path = Paths.get("upload/default.png");
@@ -63,19 +66,6 @@ public class ImageServiceTests {
 
     }
 
-    @Test
-    public void testGet() throws IOException {
-        Map<String, String> result = imageService.viewImage(fileName);
-        Assertions.assertNotNull(result, "Result map from viewImage should not be null");
-        Assertions.assertTrue(result.containsKey("fileContent"), "Result should contain the fileContent");
-    }
-
-    @Test
-    public void testRemove() {
-        imageService.removeImage(fileName);
-        Assertions.assertThrows(IOException.class, () -> imageService.viewImage(fileName));
-    }
-
     @AfterAll
     public void cleanup() throws IOException {
         Path directory = Paths.get("upload/test");
@@ -87,6 +77,21 @@ public class ImageServiceTests {
             }
             Files.delete(directory);
         }
+    }
+
+    @Test
+    @DisplayName("조회 테스트")
+    public void testGet() throws IOException {
+        Map<String, String> result = imageService.viewImage(fileName);
+        Assertions.assertNotNull(result, "Result map from viewImage should not be null");
+        Assertions.assertTrue(result.containsKey("fileContent"), "Result should contain the fileContent");
+    }
+
+    @Test
+    @DisplayName("삭제 테스트")
+    public void testRemove() {
+        imageService.removeImage(fileName);
+        Assertions.assertThrows(IOException.class, () -> imageService.viewImage(fileName));
     }
 
 }

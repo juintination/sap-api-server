@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("PostLikeRepositoryTests")
 public class PostLikeRepositoryTests {
 
     @Autowired
@@ -86,7 +89,6 @@ public class PostLikeRepositoryTests {
                     .member(member)
                     .build()).getId();
         }
-
     }
 
     @AfterEach
@@ -96,51 +98,69 @@ public class PostLikeRepositoryTests {
         memberRepository.deleteAll();
     }
 
-    @Test
-    @Transactional(readOnly = true)
-    public void testRead() {
-        Optional<PostLike> result = postLikeRepository.findById(heartId);
-        PostLike postLike = result.orElseThrow();
-        Assertions.assertEquals(postId, postLike.getPost().getId());
-        Assertions.assertEquals(userId, postLike.getMember().getId());
+    @Nested
+    @DisplayName("조회 테스트")
+    class ReadTests {
+
+        @Test
+        @DisplayName("단일 게시글 좋아요 조회")
+        @Transactional(readOnly = true)
+        public void testRead() {
+            Optional<PostLike> result = postLikeRepository.findById(heartId);
+            PostLike postLike = result.orElseThrow();
+            Assertions.assertEquals(postId, postLike.getPost().getId());
+            Assertions.assertEquals(userId, postLike.getMember().getId());
+        }
+
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 단일 게시글 좋아요 조회")
+        public void testReadWithoutTransactional() {
+            Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
+            PostLike postLike = result.orElseThrow();
+            Assertions.assertEquals(heartId, postLike.getId());
+        }
+
+        @Test
+        @DisplayName("JOIN FETCH 쿼리를 사용하여 @Transactional 없이 게시글에 Id로 좋아요 리스트 조회")
+        public void testReadListByPost() {
+            List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
+            postLikes.forEach(log::info);
+            Assertions.assertEquals(HEART_COUNT, postLikes.size());
+        }
+
     }
 
-    @Test
-    public void testReadByPostIdAndUserId() {
-        Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
-        PostLike postLike = result.orElseThrow();
-        Assertions.assertEquals(heartId, postLike.getId());
-    }
+    @Nested
+    @DisplayName("삭제 테스트")
+    class DeleteTests {
 
-    @Test
-    public void testReadListByPost() {
-        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
-        postLikes.forEach(log::info);
-        Assertions.assertEquals(HEART_COUNT, postLikes.size());
-    }
-
-    @Test
-    public void testDelete() {
-        postLikeRepository.deleteById(heartId);
-        Optional<PostLike> result = postLikeRepository.findById(heartId);
-        Assertions.assertEquals(Optional.empty(), result);
-    }
-
-    @Test
-    public void testDeleteByPost() {
-        List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
-        postRepository.deleteById(postId);
-        postLikes.forEach(postLike -> {
-            Optional<PostLike> result = postLikeRepository.findById(postLike.getId());
+        @Test
+        @DisplayName("게시글 좋아요 삭제")
+        public void testDelete() {
+            postLikeRepository.deleteById(heartId);
+            Optional<PostLike> result = postLikeRepository.findById(heartId);
             Assertions.assertEquals(Optional.empty(), result);
-        });
-    }
+        }
 
-    @Test
-    public void testDeleteByMember() {
-        memberRepository.deleteById(userId);
-        Optional<PostLike> postLike = postLikeRepository.findById(heartId);
-        Assertions.assertEquals(Optional.empty(), postLike);
+        @Test
+        @DisplayName("게시글 삭제 시 좋아요 삭제")
+        public void testDeleteByPostDelete() {
+            List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
+            postRepository.deleteById(postId);
+            postLikes.forEach(postLike -> {
+                Optional<PostLike> result = postLikeRepository.findById(postLike.getId());
+                Assertions.assertEquals(Optional.empty(), result);
+            });
+        }
+
+        @Test
+        @DisplayName("회원 삭제 시 좋아요 삭제")
+        public void testDeleteByMemberDelete() {
+            memberRepository.deleteById(userId);
+            Optional<PostLike> postLike = postLikeRepository.findById(heartId);
+            Assertions.assertEquals(Optional.empty(), postLike);
+        }
+
     }
 
 }

@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -21,6 +23,7 @@ import java.util.NoSuchElementException;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("CommentServiceTests")
 public class CommentServiceTests {
 
     @Autowired
@@ -96,48 +99,72 @@ public class CommentServiceTests {
         }
     }
 
-    @Test
-    public void testGet() {
-        CommentDTO commentDTO = commentService.get(commentId);
-        Assertions.assertEquals(content, commentDTO.getContent());
+    @Nested
+    @DisplayName("댓글 조회 테스트")
+    class ReadTests {
+
+        @Test
+        @DisplayName("단일 댓글 조회")
+        public void testGet() {
+            CommentDTO commentDTO = commentService.get(commentId);
+            Assertions.assertEquals(content, commentDTO.getContent());
+        }
+
+        @Test
+        @DisplayName("게시글의 댓글 리스트 조회")
+        public void testGetListByPostId() {
+            List<CommentDTO> result = commentService.getCommentsByPostId(postId);
+            Assertions.assertEquals(COMMENT_COUNT, result.size());
+        }
+
     }
 
-    @Test
-    public void testGetListByPostId() {
-        List<CommentDTO> result = commentService.getCommentsByPostId(postId);
-        Assertions.assertEquals(COMMENT_COUNT, result.size());
+    @Nested
+    @DisplayName("댓글 수정 테스트")
+    class ModifyTests {
+
+        @Test
+        @DisplayName("댓글 수정")
+        public void testModify() {
+            CommentDTO commentDTO = commentService.get(commentId);
+            commentDTO.setContent("ModifiedContent");
+            commentService.modify(commentDTO);
+
+            CommentDTO result = commentService.get(commentId);
+            Assertions.assertEquals("ModifiedContent", result.getContent());
+        }
+
     }
 
-    @Test
-    public void testModify() {
-        CommentDTO commentDTO = commentService.get(commentId);
-        commentDTO.setContent("ModifiedContent");
-        commentService.modify(commentDTO);
+    @Nested
+    @DisplayName("댓글 삭제 테스트")
+    class DeleteTests {
 
-        CommentDTO result = commentService.get(commentId);
-        Assertions.assertEquals("ModifiedContent", result.getContent());
-    }
+        @Test
+        @DisplayName("댓글 삭제")
+        public void testRemove() {
+            commentService.remove(commentId);
+            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+        }
 
-    @Test
-    public void testRemove() {
-        commentService.remove(commentId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
-    }
+        @Test
+        @DisplayName("게시글 삭제 시 댓글 삭제")
+        public void testDeleteByPostDelete() {
+            List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
+            postService.remove(postId);
 
-    @Test
-    public void testDeleteByPost() {
-        List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
-        postService.remove(postId);
+            comments.forEach(comment -> {
+                Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
+            });
+        }
 
-        comments.forEach(comment -> {
-            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(comment.getId()));
-        });
-    }
+        @Test
+        @DisplayName("회원 삭제 시 댓글 삭제")
+        public void testDeleteByMemberDelete() {
+            memberService.remove(commenterId);
+            Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
+        }
 
-    @Test
-    public void testDeleteByMember() {
-        memberService.remove(commenterId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> commentService.get(commentId));
     }
 
 }

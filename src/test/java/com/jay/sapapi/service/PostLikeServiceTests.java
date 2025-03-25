@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -21,6 +23,7 @@ import java.util.NoSuchElementException;
 @SpringBootTest
 @Log4j2
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("PostLikeServiceTests")
 public class PostLikeServiceTests {
 
     @Autowired
@@ -92,39 +95,56 @@ public class PostLikeServiceTests {
         }
     }
 
-    @Test
-    public void testGet() {
-        PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
-        Assertions.assertEquals(postId, postLikeDTO.getPostId());
-        Assertions.assertEquals(userId, postLikeDTO.getUserId());
-    }
+    @Nested
+    @DisplayName("게시글 좋아요 조회 테스트")
+    class ReadTests {
 
-    @Test
-    public void testGetListByPostId() {
-        List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
-        Assertions.assertEquals(POST_LIKE_COUNT, result.size());
-    }
-
-    @Test
-    public void testRemove() {
-        postLikeService.remove(postId, userId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
-    }
-
-    @Test
-    public void testDeleteByPost() {
-        List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
-        postService.remove(postId);
-
-        for (PostLikeDTO heart : hearts) {
-            Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
+        @Test
+        @DisplayName("단일 게시글 좋아요 조회")
+        public void testGet() {
+            PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
+            Assertions.assertEquals(postId, postLikeDTO.getPostId());
+            Assertions.assertEquals(userId, postLikeDTO.getUserId());
         }
+
+        @Test
+        @DisplayName("게시글의 좋아요 리스트 조회")
+        public void testGetListByPostId() {
+            List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
+            Assertions.assertEquals(POST_LIKE_COUNT, result.size());
+        }
+
     }
 
-    @Test
-    public void testDeleteByMember() {
-        memberService.remove(userId);
-        Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
+    @Nested
+    @DisplayName("게시글 좋아요 삭제 테스트")
+    class RemoveTests {
+
+        @Test
+        @DisplayName("게시글 좋아요 삭제")
+        public void testRemove() {
+            postLikeService.remove(postId, userId);
+            Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
+        }
+
+        @Test
+        @DisplayName("게시글 삭제 시 좋아요 삭제")
+        public void testDeleteByPostDelete() {
+            List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
+            postService.remove(postId);
+
+            for (PostLikeDTO heart : hearts) {
+                Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
+            }
+        }
+
+        @Test
+        @DisplayName("회원 삭제 시 좋아요 삭제")
+        public void testDeleteByMemberDelete() {
+            memberService.remove(userId);
+            Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
+        }
+
     }
 
 }
