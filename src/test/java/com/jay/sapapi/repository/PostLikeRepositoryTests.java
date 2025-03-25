@@ -39,7 +39,7 @@ public class PostLikeRepositoryTests {
 
     private final Faker faker = new Faker();
 
-    private final int heartsCount = 5;
+    private final int HEART_COUNT = 5;
 
     private Long postId, userId, heartId;
 
@@ -72,7 +72,7 @@ public class PostLikeRepositoryTests {
                 .build());
         postId = savedPost.getId();
 
-        for (int i = 0; i < heartsCount; i++) {
+        for (int i = 0; i < HEART_COUNT; i++) {
             Member member = memberRepository.save(Member.builder()
                     .email(faker.internet().emailAddress())
                     .password(passwordEncoder.encode(faker.internet().password()))
@@ -116,7 +116,7 @@ public class PostLikeRepositoryTests {
     public void testReadListByPost() {
         List<PostLike> postLikes = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
         postLikes.forEach(log::info);
-        Assertions.assertEquals(heartsCount, postLikes.size());
+        Assertions.assertEquals(HEART_COUNT, postLikes.size());
     }
 
     @Test

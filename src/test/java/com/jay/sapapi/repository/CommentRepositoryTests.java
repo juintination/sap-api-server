@@ -39,7 +39,7 @@ public class CommentRepositoryTests {
 
     private final Faker faker = new Faker();
 
-    private final int commentsCount = 5;
+    private final int COMMENT_COUNT = 5;
 
     private Long postId, commentId, commenterId;
 
@@ -74,7 +74,7 @@ public class CommentRepositoryTests {
                 .build());
         postId = savedPost.getId();
 
-        for (int i = 0; i < commentsCount; i++) {
+        for (int i = 0; i < COMMENT_COUNT; i++) {
             Member commenter = memberRepository.save(Member.builder()
                     .email(faker.internet().emailAddress())
                     .password(passwordEncoder.encode(faker.internet().password()))
@@ -119,7 +119,7 @@ public class CommentRepositoryTests {
     public void testReadListByPost() {
         List<Comment> comments = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         comments.forEach(log::info);
-        Assertions.assertEquals(commentsCount, comments.size());
+        Assertions.assertEquals(COMMENT_COUNT, comments.size());
     }
 
     @Test

@@ -46,7 +46,7 @@ public class PostRepositoryTests {
 
     private Member member;
 
-    private final int commentsCount = 10, postsCount = 10;
+    private final int COMMENT_COUNT = 10, POST_COUNT = 10;
 
     private Long postId;
 
@@ -78,7 +78,7 @@ public class PostRepositoryTests {
         title = faker.book().title();
         content = faker.lorem().sentence();
 
-        for (int i = 0; i < postsCount; i++) {
+        for (int i = 0; i < POST_COUNT; i++) {
             Post savedPost = postRepository.save(Post.builder()
                     .title(title)
                     .content(content)
@@ -87,7 +87,7 @@ public class PostRepositoryTests {
                     .build());
             postId = savedPost.getId();
 
-            for (int j = 0; j < commentsCount; j++) {
+            for (int j = 0; j < COMMENT_COUNT; j++) {
                 Comment comment = Comment.builder()
                         .post(savedPost)
                         .commenter(member)
@@ -142,7 +142,7 @@ public class PostRepositoryTests {
     public void testReadAll() {
         log.info("Read all posts");
         List<Post> result = postRepository.findAll();
-        Assertions.assertEquals(postsCount, result.size());
+        Assertions.assertEquals(POST_COUNT, result.size());
         result.forEach(post -> {
             log.info("Post: {}", post);
             Assertions.assertEquals(title, post.getTitle());
@@ -157,7 +157,7 @@ public class PostRepositoryTests {
     public void testReadAllWithoutTransactional() {
         log.info("Read all posts without @Transactional annotation");
         List<Object> result = postRepository.getAllPosts();
-        Assertions.assertEquals(postsCount, result.size());
+        Assertions.assertEquals(POST_COUNT, result.size());
         result.forEach(arr -> {
             Object[] entity = (Object[]) arr;
 
@@ -169,7 +169,7 @@ public class PostRepositoryTests {
             Assertions.assertEquals(member.toString(), writer.toString());
 
             Long commentsCount = (Long) entity[2];
-            Assertions.assertEquals(this.commentsCount, commentsCount);
+            Assertions.assertEquals(this.COMMENT_COUNT, commentsCount);
             log.info("Comments Count: {}", entity[2]);
 
             Long heartsCount = (Long) entity[3];
