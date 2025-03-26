@@ -26,14 +26,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokensDTO refreshTokens(String authorizationHeader, String refreshToken) {
-        if (refreshToken == null) {
-            throw new CustomJWTException("nullRefreshToken");
-        }
-        if (authorizationHeader == null || authorizationHeader.length() < 7) {
-            throw new CustomJWTException("invalidToken");
-        }
-
-        String accessToken = authorizationHeader.substring(7);
+        validateTokens(authorizationHeader, refreshToken);
+        String accessToken = extractAccessToken(authorizationHeader);
 
         if (!isExpired(accessToken)) {
             return new TokensDTO(accessToken, refreshToken);
@@ -41,9 +35,21 @@ public class AuthServiceImpl implements AuthService {
 
         Map<String, Object> claims = JWTUtil.validateToken(refreshToken);
         String newAccessToken = JWTUtil.generateToken(claims, accessTokenExpiration);
-        String newRefreshToken = shouldRefresh(claims) ? JWTUtil.generateToken(claims, refreshTokenExpiration) : refreshToken;
-
+        String newRefreshToken = updateRefreshToken(claims, refreshToken);
         return new TokensDTO(newAccessToken, newRefreshToken);
+    }
+
+    private void validateTokens(String authorizationHeader, String refreshToken) {
+        if (refreshToken == null) {
+            throw new CustomJWTException("nullRefreshToken");
+        }
+        if (authorizationHeader == null || authorizationHeader.length() < 7) {
+            throw new CustomJWTException("invalidToken");
+        }
+    }
+
+    private String extractAccessToken(String authorizationHeader) {
+        return authorizationHeader.substring(7);
     }
 
     private boolean isExpired(String token) {
@@ -58,10 +64,13 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    private String updateRefreshToken(Map<String, Object> claims, String currentRefreshToken) {
+        return shouldRefresh(claims) ? JWTUtil.generateToken(claims, refreshTokenExpiration) : currentRefreshToken;
+    }
+
     private boolean shouldRefresh(Map<String, Object> claims) {
         Instant expiration = Instant.ofEpochSecond((Integer) claims.get("exp"));
         long minutesLeft = Duration.between(Instant.now(), expiration).toMinutes();
         return minutesLeft < refreshThreshold;
     }
-
 }
