@@ -24,6 +24,8 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.jwt.refresh.threshold}")
     private int refreshThreshold;
 
+    private static final int TOKEN_PREFIX_LENGTH = 7;
+
     @Override
     public TokensDTO refreshTokens(String authorizationHeader, String refreshToken) {
         validateTokens(authorizationHeader, refreshToken);
@@ -43,13 +45,13 @@ public class AuthServiceImpl implements AuthService {
         if (refreshToken == null) {
             throw new CustomJWTException("nullRefreshToken");
         }
-        if (authorizationHeader == null || authorizationHeader.length() < 7) {
+        if (authorizationHeader == null || authorizationHeader.length() < TOKEN_PREFIX_LENGTH) {
             throw new CustomJWTException("invalidToken");
         }
     }
 
     private String extractAccessToken(String authorizationHeader) {
-        return authorizationHeader.substring(7);
+        return authorizationHeader.substring(TOKEN_PREFIX_LENGTH);
     }
 
     private boolean isExpired(String token) {
