@@ -3,13 +3,26 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.dto.TokensDTO;
 import com.jay.sapapi.util.JWTUtil;
 import com.jay.sapapi.util.exception.CustomJWTException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
+    @Value("${spring.jwt.access-token.expiration}")
+    private int accessTokenExpiration;
+
+    @Value("${spring.jwt.refresh-token.expiration}")
+    private int refreshTokenExpiration;
+
+    @Value("${spring.jwt.refresh.threshold}")
+    private int refreshThreshold;
 
     @Override
     public TokensDTO refreshTokens(String authorizationHeader, String refreshToken) {
@@ -27,8 +40,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Map<String, Object> claims = JWTUtil.validateToken(refreshToken);
-        String newAccessToken = JWTUtil.generateToken(claims, 10);
-        String newRefreshToken = shouldRefresh(claims) ? JWTUtil.generateToken(claims, 60 * 24) : refreshToken;
+        String newAccessToken = JWTUtil.generateToken(claims, accessTokenExpiration);
+        String newRefreshToken = shouldRefresh(claims) ? JWTUtil.generateToken(claims, refreshTokenExpiration) : refreshToken;
 
         return new TokensDTO(newAccessToken, newRefreshToken);
     }
@@ -46,11 +59,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean shouldRefresh(Map<String, Object> claims) {
-        Integer exp = (Integer) claims.get("exp");
-        Date expDate = new Date((long) exp * 1000);
-        long gap = expDate.getTime() - System.currentTimeMillis();
-        long leftMin = gap / (1000 * 60);
-        return leftMin < 60;
+        Instant expiration = Instant.ofEpochSecond((Integer) claims.get("exp"));
+        long minutesLeft = Duration.between(Instant.now(), expiration).toMinutes();
+        return minutesLeft < refreshThreshold;
     }
 
 }

@@ -6,6 +6,7 @@ import com.jay.sapapi.security.handler.APILoginSuccessHandler;
 import com.jay.sapapi.security.handler.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -28,6 +29,12 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 public class CustomSecurityConfig {
+
+    @Value("${spring.jwt.access-token.expiration}")
+    private int accessTokenExpiration;
+
+    @Value("${spring.jwt.refresh-token.expiration}")
+    private int refreshTokenExpiration;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -55,7 +62,7 @@ public class CustomSecurityConfig {
 
         http.formLogin(config -> {
             config.loginPage("/api/auth/tokens");
-            config.successHandler(new APILoginSuccessHandler());
+            config.successHandler(new APILoginSuccessHandler(accessTokenExpiration, refreshTokenExpiration));
             config.failureHandler(new APILoginFailHandler());
         });
 
