@@ -15,7 +15,7 @@ public interface PostLikeService {
     @Transactional(readOnly = true)
     List<PostLikeDTO> getHeartsByPost(Long postId);
 
-    Long register(PostLikeDTO postLikeDTO);
+    Long register(Long postId, Long userId);
 
     void remove(Long postId, Long userId);
 

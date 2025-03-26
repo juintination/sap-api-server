@@ -40,16 +40,19 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public Long register(PostLikeDTO postLikeDTO) {
+    public Long register(Long postId, Long userId) {
+        PostLikeDTO postLikeDTO = PostLikeDTO.builder()
+                .postId(postId)
+                .userId(userId)
+                .build();
 
-        Optional<PostLike> existingHeart = postLikeRepository.findByPostIdAndUserId(postLikeDTO.getPostId(), postLikeDTO.getUserId());
+        Optional<PostLike> existingHeart = postLikeRepository.findByPostIdAndUserId(postId, userId);
         if (existingHeart.isPresent()) {
             throw new CustomValidationException("heartAlreadyExists");
         }
 
-        PostLike postLike = dtoToEntity(postLikeDTO);
-        PostLike result = postLikeRepository.save(postLike);
-        return result.getId();
+        PostLike postLike = postLikeRepository.save(dtoToEntity(postLikeDTO));
+        return postLike.getId();
     }
 
     @Override

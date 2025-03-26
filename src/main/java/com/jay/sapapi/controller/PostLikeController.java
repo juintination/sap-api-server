@@ -14,31 +14,31 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/api/likes/posts")
+@RequestMapping("/api/posts/{postId}/likes")
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
 
-    @GetMapping("/{postId}/users/{userId}")
+    @GetMapping("/users/{userId}")
     public Map<String, Object> get(@PathVariable Long postId, @PathVariable Long userId) {
         PostLikeDTO dto = postLikeService.get(postId, userId);
         return Map.of("message", "success", "data", Map.of("data", dto));
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping("/")
     public Map<String, Object> getHeartsByPost(@PathVariable Long postId) {
         return Map.of("message", "success", "data", postLikeService.getHeartsByPost(postId));
     }
 
-    @PostMapping("/")
-    @PreAuthorize("#dto.userId == authentication.principal.userId")
-    public ResponseEntity<?> register(PostLikeDTO dto) {
-        long heartId = postLikeService.register(dto);
+    @PostMapping("/{userId}")
+    @PreAuthorize("#userId == authentication.principal.userId")
+    public ResponseEntity<?> register(@PathVariable Long postId, @PathVariable Long userId) {
+        long heartId = postLikeService.register(postId, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "registerSuccess", "data", Map.of("id", heartId)));
     }
 
-    @DeleteMapping("/{postId}/users/{userId}")
+    @DeleteMapping("/users/{userId}")
     public Map<String, Object> remove(@PathVariable Long postId, @PathVariable Long userId) {
         postLikeService.remove(postId, userId);
         return Map.of("message", "removeSuccess");
