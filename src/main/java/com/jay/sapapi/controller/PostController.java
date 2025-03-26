@@ -1,6 +1,7 @@
 package com.jay.sapapi.controller;
 
 import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.service.CommentService;
 import com.jay.sapapi.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,11 +21,18 @@ public class PostController {
 
     private final PostService postService;
 
+    private final CommentService commentService;
+
     @GetMapping("/{postId}")
     public Map<String, Object> get(@PathVariable Long postId) {
         postService.incrementViewCount(postId);
         PostDTO dto = postService.get(postId);
         return Map.of("message", "success", "data", dto);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Map<String, Object> getCommentsByPost(@PathVariable Long postId) {
+        return Map.of("message", "success", "data", commentService.getCommentsByPostId(postId));
     }
 
     @GetMapping("/")

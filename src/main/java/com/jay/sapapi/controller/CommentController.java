@@ -25,11 +25,6 @@ public class CommentController {
         return Map.of("message", "success", "data", dto);
     }
 
-    @GetMapping("/posts/{postId}")
-    public Map<String, Object> getCommentsByPost(@PathVariable Long postId) {
-        return Map.of("message", "success", "data", commentService.getCommentsByPostId(postId));
-    }
-
     @PostMapping("/")
     @PreAuthorize("#dto.userId == authentication.principal.userId")
     public ResponseEntity<?> register(CommentDTO dto) {
