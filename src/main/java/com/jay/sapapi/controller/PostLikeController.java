@@ -30,7 +30,7 @@ public class PostLikeController {
         return Map.of("message", "success", "data", postLikeService.getHeartsByPost(postId));
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("/users/{userId}")
     @PreAuthorize("#userId == authentication.principal.userId")
     public ResponseEntity<?> register(@PathVariable Long postId, @PathVariable Long userId) {
         long heartId = postLikeService.register(postId, userId);
