@@ -46,7 +46,7 @@ public class MemberRepositoryTests {
         String email = "sample@example.com";
         Member member = Member.builder()
                 .email(email)
-                .password(passwordEncoder.encode(faker.internet().password()))
+                .password(passwordEncoder.encode(faker.internet().password(8, 20, true, true)))
                 .nickname("sampleUser")
                 .memberRole(MemberRole.USER)
                 .build();

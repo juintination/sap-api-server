@@ -1,14 +1,16 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberModifyRequestDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.member.response.MemberResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface MemberService {
 
     @Transactional(readOnly = true)
-    MemberDTO get(Long userId);
+    MemberResponseDTO get(Long userId);
 
     @Transactional(readOnly = true)
     boolean existsByEmail(String email);
@@ -16,19 +18,21 @@ public interface MemberService {
     @Transactional(readOnly = true)
     boolean existsByNickname(String nickname);
 
-    Long register(MemberDTO memberDTO);
+    Long register(MemberSignupRequestDTO memberSignupRequestDTO);
 
-    void modify(MemberDTO modifyDTO);
+    void modify(Long userId, MemberModifyRequestDTO memberModifyRequestDTO);
 
     void remove(Long userId);
 
     @Transactional(readOnly = true)
     void checkPassword(Long userId, String password);
 
-    Member dtoToEntity(MemberDTO memberDTO);
+    void changePassword(Long userId, String newPassword);
 
-    default MemberDTO entityToDTO(Member member) {
-        return MemberDTO.builder()
+    Member dtoToEntity(MemberSignupRequestDTO dto);
+
+    default MemberResponseDTO entityToDTO(Member member) {
+        return MemberResponseDTO.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())

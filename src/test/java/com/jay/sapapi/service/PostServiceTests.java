@@ -2,7 +2,7 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
@@ -53,10 +53,10 @@ public class PostServiceTests {
     @BeforeEach
     public void registerPosts() {
 
-        MemberDTO memberDTO = MemberDTO.builder()
+        MemberSignupRequestDTO memberDTO = MemberSignupRequestDTO.builder()
                 .email(faker.internet().emailAddress())
-                .password(faker.internet().password())
-                .nickname(faker.name().name())
+                .password(faker.internet().password(8, 20, true, true))
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .role(MemberRole.USER)
                 .build();
         userId = memberService.register(memberDTO);

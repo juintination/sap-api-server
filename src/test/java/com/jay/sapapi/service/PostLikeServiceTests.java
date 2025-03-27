@@ -2,8 +2,8 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.postlike.PostLikeDTO;
-import com.jay.sapapi.dto.member.MemberDTO;
 import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
@@ -56,10 +56,10 @@ public class PostLikeServiceTests {
     @BeforeEach
     public void registerPostLikes() {
 
-        MemberDTO writerDTO = MemberDTO.builder()
+        MemberSignupRequestDTO writerDTO = MemberSignupRequestDTO.builder()
                 .email(faker.internet().emailAddress())
-                .password(faker.internet().password())
-                .nickname(faker.name().name())
+                .password(faker.internet().password(8, 20, true, true))
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .role(MemberRole.USER)
                 .build();
         Long writerId = memberService.register(writerDTO);
@@ -71,10 +71,10 @@ public class PostLikeServiceTests {
                 .build());
 
         for (int i = 0; i < POST_LIKE_COUNT; i++) {
-            MemberDTO memberDTO = MemberDTO.builder()
+            MemberSignupRequestDTO memberDTO = MemberSignupRequestDTO.builder()
                     .email(faker.internet().emailAddress())
-                    .password(faker.internet().password())
-                    .nickname(faker.name().name())
+                    .password(faker.internet().password(8, 20, true, true))
+                    .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                     .role(MemberRole.USER)
                     .build();
             userId = memberService.register(memberDTO);

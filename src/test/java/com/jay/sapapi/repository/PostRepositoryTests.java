@@ -73,7 +73,7 @@ public class PostRepositoryTests {
         member = memberRepository.save(Member.builder()
                 .email(faker.internet().emailAddress())
                 .password(passwordEncoder.encode(faker.internet().password()))
-                .nickname(faker.name().name())
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .memberRole(MemberRole.USER)
                 .build());
 

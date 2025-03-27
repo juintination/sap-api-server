@@ -1,22 +1,16 @@
-package com.jay.sapapi.dto.member;
+package com.jay.sapapi.dto.member.response;
 
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import com.jay.sapapi.domain.MemberRole;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@ToString
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class MemberDTO {
+public class MemberResponseDTO {
 
     private Long id;
 

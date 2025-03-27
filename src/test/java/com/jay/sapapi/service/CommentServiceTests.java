@@ -3,7 +3,7 @@ package com.jay.sapapi.service;
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.comment.CommentDTO;
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
@@ -58,10 +58,10 @@ public class CommentServiceTests {
     @BeforeEach
     public void registerComments() {
 
-        MemberDTO writerDTO = MemberDTO.builder()
+        MemberSignupRequestDTO writerDTO = MemberSignupRequestDTO.builder()
                 .email(faker.internet().emailAddress())
-                .password(faker.internet().password())
-                .nickname(faker.name().name())
+                .password(faker.internet().password(8, 20, true, true))
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .role(MemberRole.USER)
                 .build();
         Long writerId = memberService.register(writerDTO);
@@ -73,10 +73,10 @@ public class CommentServiceTests {
                 .build());
 
         for (int i = 0; i < COMMENT_COUNT; i++) {
-            MemberDTO memberDTO = MemberDTO.builder()
+            MemberSignupRequestDTO memberDTO = MemberSignupRequestDTO.builder()
                     .email(faker.internet().emailAddress())
-                    .password(faker.internet().password())
-                    .nickname(faker.name().name())
+                    .password(faker.internet().password(8, 20, true, true))
+                    .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                     .role(MemberRole.USER)
                     .build();
             commenterId = memberService.register(memberDTO);
