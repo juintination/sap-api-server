@@ -79,10 +79,7 @@ public class PostLikeServiceTests {
                     .build();
             userId = memberService.register(memberDTO);
 
-            postLikeService.register(PostLikeDTO.builder()
-                    .postId(postId)
-                    .userId(userId)
-                    .build());
+            postLikeService.register(postId, userId);
         }
 
     }
@@ -124,10 +121,7 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("게시글 좋아요 중복 등록")
         public void testRegisterDuplicate() {
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postLikeService.register(PostLikeDTO.builder()
-                    .postId(postId)
-                    .userId(userId)
-                    .build()));
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postLikeService.register(postId, userId));
             Assertions.assertEquals("heartAlreadyExists", e.getMessage());
         }
 
