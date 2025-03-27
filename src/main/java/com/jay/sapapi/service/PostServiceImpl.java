@@ -2,7 +2,7 @@ package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.repository.PostRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;

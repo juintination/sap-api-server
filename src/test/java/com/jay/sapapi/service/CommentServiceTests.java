@@ -2,9 +2,9 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.CommentDTO;
-import com.jay.sapapi.dto.MemberDTO;
-import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.dto.comment.CommentDTO;
+import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;

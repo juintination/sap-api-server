@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.post;
 
 import lombok.Getter;
 import lombok.Setter;

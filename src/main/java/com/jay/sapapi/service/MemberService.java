@@ -1,7 +1,7 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
-import com.jay.sapapi.dto.MemberDTO;
+import com.jay.sapapi.dto.member.MemberDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional

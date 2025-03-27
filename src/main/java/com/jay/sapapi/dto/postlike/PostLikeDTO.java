@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.postlike;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,16 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentDTO {
+public class PostLikeDTO {
 
-    private Long id, userId, postId;
+    private Long id, postId, userId;
 
-    private String content;
-
-    private String commenterNickname, commenterEmail;
-
-    private String commenterProfileImageUrl;
-
-    private LocalDateTime createdAt, modifiedAt;
+    private LocalDateTime createdAt;
 
 }

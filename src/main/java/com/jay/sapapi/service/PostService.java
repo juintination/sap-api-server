@@ -2,7 +2,7 @@ package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.dto.post.PostDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

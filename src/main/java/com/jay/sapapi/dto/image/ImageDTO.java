@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.image;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,8 +6,7 @@ import lombok.ToString;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -15,10 +14,12 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostLikeDTO {
+public class ImageDTO {
 
-    private Long id, postId, userId;
+    private String fileName;
 
-    private LocalDateTime createdAt;
+    private MultipartFile file;
+
+    private ImageType imageType;
 
 }

@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto.strategy;
+package com.jay.sapapi.dto.image.strategy;
 
 import java.io.IOException;
 import java.nio.file.Path;

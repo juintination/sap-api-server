@@ -1,6 +1,6 @@
 package com.jay.sapapi.service;
 
-import com.jay.sapapi.dto.TokensDTO;
+import com.jay.sapapi.dto.tokens.TokensDTO;
 import com.jay.sapapi.util.JWTUtil;
 import com.jay.sapapi.util.exception.CustomJWTException;
 import lombok.RequiredArgsConstructor;

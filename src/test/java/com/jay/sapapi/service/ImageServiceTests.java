@@ -1,7 +1,7 @@
 package com.jay.sapapi.service;
 
-import com.jay.sapapi.dto.ImageDTO;
-import com.jay.sapapi.dto.ImageType;
+import com.jay.sapapi.dto.image.ImageDTO;
+import com.jay.sapapi.dto.image.ImageType;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

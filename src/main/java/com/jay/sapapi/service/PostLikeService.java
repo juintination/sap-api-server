@@ -1,7 +1,7 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.PostLike;
-import com.jay.sapapi.dto.PostLikeDTO;
+import com.jay.sapapi.dto.postlike.PostLikeDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

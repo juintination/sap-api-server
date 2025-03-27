@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto.strategy;
+package com.jay.sapapi.dto.image.strategy;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;

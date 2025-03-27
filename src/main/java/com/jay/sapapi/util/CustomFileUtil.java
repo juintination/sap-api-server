@@ -1,6 +1,6 @@
 package com.jay.sapapi.util;
 
-import com.jay.sapapi.dto.ImageType;
+import com.jay.sapapi.dto.image.ImageType;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

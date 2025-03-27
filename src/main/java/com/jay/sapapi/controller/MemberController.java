@@ -1,6 +1,6 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.MemberDTO;
+import com.jay.sapapi.dto.member.MemberDTO;
 import com.jay.sapapi.service.MemberService;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;

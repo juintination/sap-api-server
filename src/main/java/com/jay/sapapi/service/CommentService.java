@@ -1,7 +1,7 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Comment;
-import com.jay.sapapi.dto.CommentDTO;
+import com.jay.sapapi.dto.comment.CommentDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.tokens;
 
 import lombok.Getter;
 import lombok.Builder;

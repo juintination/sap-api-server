@@ -1,6 +1,6 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.TokensDTO;
+import com.jay.sapapi.dto.tokens.TokensDTO;
 import com.jay.sapapi.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

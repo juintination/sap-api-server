@@ -1,4 +1,4 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.member;
 
 import lombok.Getter;
 import lombok.Setter;

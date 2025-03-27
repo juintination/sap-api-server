@@ -1,6 +1,6 @@
 package com.jay.sapapi.service;
 
-import com.jay.sapapi.dto.TokensDTO;
+import com.jay.sapapi.dto.tokens.TokensDTO;
 
 public interface AuthService {
 

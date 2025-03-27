@@ -1,6 +1,6 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.PostDTO;
+import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.service.CommentService;
 import com.jay.sapapi.service.PostService;
 import lombok.RequiredArgsConstructor;

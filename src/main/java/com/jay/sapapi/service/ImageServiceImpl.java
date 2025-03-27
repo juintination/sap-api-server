@@ -1,6 +1,6 @@
 package com.jay.sapapi.service;
 
-import com.jay.sapapi.dto.ImageDTO;
+import com.jay.sapapi.dto.image.ImageDTO;
 import com.jay.sapapi.util.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

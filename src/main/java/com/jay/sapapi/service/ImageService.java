@@ -1,6 +1,6 @@
 package com.jay.sapapi.service;
 
-import com.jay.sapapi.dto.ImageDTO;
+import com.jay.sapapi.dto.image.ImageDTO;
 
 import java.io.IOException;
 import java.util.Map;

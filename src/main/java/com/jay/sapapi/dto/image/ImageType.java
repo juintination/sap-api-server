@@ -1,8 +1,8 @@
-package com.jay.sapapi.dto;
+package com.jay.sapapi.dto.image;
 
-import com.jay.sapapi.dto.strategy.PostImageThumbnailStrategy;
-import com.jay.sapapi.dto.strategy.ProfileImageThumbnailStrategy;
-import com.jay.sapapi.dto.strategy.ThumbnailStrategy;
+import com.jay.sapapi.dto.image.strategy.PostImageThumbnailStrategy;
+import com.jay.sapapi.dto.image.strategy.ProfileImageThumbnailStrategy;
+import com.jay.sapapi.dto.image.strategy.ThumbnailStrategy;
 import lombok.Getter;
 
 @Getter

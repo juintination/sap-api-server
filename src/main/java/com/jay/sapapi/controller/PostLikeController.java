@@ -1,6 +1,6 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.PostLikeDTO;
+import com.jay.sapapi.dto.postlike.PostLikeDTO;
 import com.jay.sapapi.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
