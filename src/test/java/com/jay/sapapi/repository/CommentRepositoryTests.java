@@ -70,7 +70,7 @@ public class CommentRepositoryTests {
                 .build());
 
         Post savedPost = postRepository.save(Post.builder()
-                .title(faker.book().title())
+                .title(faker.lorem().characters(1, 20, true, true))
                 .content(faker.lorem().sentence())
                 .writer(writer)
                 .postImageUrl(faker.internet().image())

@@ -2,6 +2,8 @@ package com.jay.sapapi.domain;
 
 import com.jay.sapapi.domain.common.TimeStampedEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -18,10 +20,17 @@ public class Post extends TimeStampedEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "제목은 필수 입력값입니다.")
+    @Size(max = 20, message = "제목은 최대 20자까지 가능합니다.")
+    @Column(nullable = false, length = 20)
     private String title;
 
+    @NotBlank(message = "내용은 필수 입력값입니다.")
+    @Column(nullable = false)
     private String content;
 
+    @Size(max = 255, message = "이미지 URL은 최대 255자까지 가능합니다.")
+    @Column(length = 255)
     private String postImageUrl;
 
     @Builder.Default

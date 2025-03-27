@@ -3,7 +3,7 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.PostLike;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.dto.postlike.PostLikeDTO;
 import com.jay.sapapi.repository.PostLikeRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
@@ -34,8 +34,8 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public List<PostLikeDTO> getHeartsByPost(Long postId) {
-        PostDTO postDTO = postService.get(postId);
-        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.dtoToEntity(postDTO));
+        PostResponseDTO postResponseDTO = postService.get(postId);
+        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.responseDtoToEntity(postResponseDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 

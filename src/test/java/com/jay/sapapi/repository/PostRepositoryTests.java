@@ -77,7 +77,7 @@ public class PostRepositoryTests {
                 .memberRole(MemberRole.USER)
                 .build());
 
-        title = faker.book().title();
+        title = faker.lorem().characters(1, 20, true, true);
         content = faker.lorem().sentence();
 
         for (int i = 0; i < POST_COUNT; i++) {

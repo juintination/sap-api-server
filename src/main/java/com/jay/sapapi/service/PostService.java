@@ -2,7 +2,9 @@ package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
+import com.jay.sapapi.dto.post.request.PostModifyRequestDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -11,23 +13,25 @@ import java.util.List;
 public interface PostService {
 
     @Transactional(readOnly = true)
-    PostDTO get(Long postId);
+    PostResponseDTO get(Long postId);
 
     void incrementViewCount(Long postId);
 
     @Transactional(readOnly = true)
-    List<PostDTO> getList();
+    List<PostResponseDTO> getList();
 
-    Long register(PostDTO postDTO);
+    Long register(PostCreateRequestDTO postCreateRequestDTO);
 
-    void modify(PostDTO postDTO);
+    void modify(Long postId, PostModifyRequestDTO postDTO);
 
     void remove(Long postId);
 
-    Post dtoToEntity(PostDTO postDTO);
+    Post dtoToEntity(PostCreateRequestDTO postDTO);
 
-    default PostDTO entityToDTO(Post post, Member writer, int commentCount, int likeCount) {
-        return PostDTO.builder()
+    Post responseDtoToEntity(PostResponseDTO postResponseDTO);
+
+    default PostResponseDTO entityToDTO(Post post, Member writer, int commentCount, int likeCount) {
+        return PostResponseDTO.builder()
                 .id(post.getId())
                 .userId(writer.getId())
                 .writerNickname(writer.getNickname())

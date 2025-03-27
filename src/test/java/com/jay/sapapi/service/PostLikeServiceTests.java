@@ -3,8 +3,8 @@ package com.jay.sapapi.service;
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
 import com.jay.sapapi.dto.postlike.PostLikeDTO;
-import com.jay.sapapi.dto.post.PostDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -64,8 +64,8 @@ public class PostLikeServiceTests {
                 .build();
         Long writerId = memberService.register(writerDTO);
 
-        postId = postService.register(PostDTO.builder()
-                .title(faker.book().title())
+        postId = postService.register(PostCreateRequestDTO.builder()
+                .title(faker.lorem().characters(1, 20, true, true))
                 .content(faker.lorem().sentence())
                 .userId(writerId)
                 .build());

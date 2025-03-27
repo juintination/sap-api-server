@@ -2,9 +2,10 @@ package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
+import com.jay.sapapi.dto.post.request.PostModifyRequestDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.repository.PostRepository;
-import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
 
     @Override
-    public PostDTO get(Long postId) {
+    public PostResponseDTO get(Long postId) {
         Object result = postRepository.getPostByPostId(postId);
         if (result == null) {
             throw new NoSuchElementException("postNotFound");
@@ -39,7 +40,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getList() {
+    public List<PostResponseDTO> getList() {
         List<Object> postList = postRepository.getAllPosts();
         return postList.stream().map(arr -> {
             Object[] entityArr = (Object[]) arr;
@@ -49,21 +50,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Long register(PostDTO postDTO) {
-        if (postDTO.getTitle() == null) {
-            throw new CustomValidationException("invalidPostTitle");
-        } else if (postDTO.getContent() == null) {
-            throw new CustomValidationException("invalidPostContent");
-        }
-
+    public Long register(PostCreateRequestDTO postDTO) {
         Post post = dtoToEntity(postDTO);
         Post result = postRepository.save(post);
         return result.getId();
     }
 
     @Override
-    public void modify(PostDTO postDTO) {
-        Optional<Post> result = postRepository.findById(postDTO.getId());
+    public void modify(Long postId, PostModifyRequestDTO postDTO) {
+        Optional<Post> result = postRepository.findById(postId);
         Post post = result.orElseThrow(() -> new NoSuchElementException("postNotFound"));
         post.changeTitle(postDTO.getTitle());
         post.changeContent(postDTO.getContent());
@@ -84,14 +79,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post dtoToEntity(PostDTO postDTO) {
+    public Post dtoToEntity(PostCreateRequestDTO postDTO) {
         return Post.builder()
-                .id(postDTO.getId())
                 .writer(Member.builder().id(postDTO.getUserId()).build())
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
-                .viewCount(postDTO.getViewCount() != null ? postDTO.getViewCount() : 0)
                 .postImageUrl(postDTO.getPostImageUrl())
+                .build();
+    }
+
+    @Override
+    public Post responseDtoToEntity(PostResponseDTO postResponseDTO) {
+        return Post.builder()
+                .id(postResponseDTO.getId())
+                .writer(Member.builder().id(postResponseDTO.getUserId()).build())
+                .title(postResponseDTO.getTitle())
+                .content(postResponseDTO.getContent())
+                .viewCount(postResponseDTO.getViewCount() != null ? postResponseDTO.getViewCount() : 0)
+                .postImageUrl(postResponseDTO.getPostImageUrl())
                 .build();
     }
 

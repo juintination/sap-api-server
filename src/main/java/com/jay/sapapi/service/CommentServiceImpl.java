@@ -4,7 +4,7 @@ import com.jay.sapapi.domain.Comment;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.dto.comment.CommentDTO;
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.repository.CommentRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +34,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDTO> getCommentsByPostId(Long postId) {
-        PostDTO postDTO = postService.get(postId);
-        List<Comment> result = commentRepository.getCommentsByPostOrderById(postService.dtoToEntity(postDTO));
+        PostResponseDTO postResponseDTO = postService.get(postId);
+        List<Comment> result = commentRepository.getCommentsByPostOrderById(postService.responseDtoToEntity(postResponseDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
