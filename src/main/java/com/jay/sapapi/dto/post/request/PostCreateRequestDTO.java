@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +22,7 @@ public class PostCreateRequestDTO {
     private Long userId;
 
     @NotBlank(message = "제목은 필수 입력값입니다.")
-    @Size(max = 20, message = "제목은 최대 20자까지 가능합니다.")
+    @Size(max = 26, message = "제목은 최대 26자까지 가능합니다.")
     private String title;
 
     @NotBlank(message = "내용은 필수 입력값입니다.")

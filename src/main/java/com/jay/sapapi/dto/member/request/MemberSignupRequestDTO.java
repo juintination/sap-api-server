@@ -37,4 +37,3 @@ public class MemberSignupRequestDTO {
     private MemberRole role;
 
 }
-
