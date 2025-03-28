@@ -123,9 +123,21 @@ public class MemberServiceTests {
         }
 
         @Test
+        @DisplayName("이메일로 회원 존재 여부 확인 실패")
+        public void testExistsByEmailFail() {
+            Assertions.assertFalse(memberService.existsByEmail(faker.internet().emailAddress()));
+        }
+
+        @Test
         @DisplayName("닉네임으로 회원 존재 여부 확인")
         public void testExistsByNickname() {
             Assertions.assertTrue(memberService.existsByNickname(signupRequestDTO.getNickname()));
+        }
+
+        @Test
+        @DisplayName("닉네임으로 회원 존재 여부 확인 실패")
+        public void testExistsByNicknameFail() {
+            Assertions.assertFalse(memberService.existsByNickname(faker.regexify("[A-Za-z0-9]{5,10}")));
         }
 
     }
@@ -148,6 +160,34 @@ public class MemberServiceTests {
             CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () ->
                     memberService.checkPassword(userId, faker.internet().password(8, 20, true, true)));
             Assertions.assertEquals("invalidPassword", e.getMessage());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("비밀번호 변경 테스트")
+    class ChangePasswordTests {
+
+        @Test
+        @DisplayName("비밀번호 변경")
+        public void testChangePassword() {
+            String newPassword = faker.internet().password(8, 20, true, true);
+            memberService.changePassword(userId, newPassword);
+            Assertions.assertDoesNotThrow(() -> memberService.checkPassword(userId, newPassword));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 회원의 비밀번호 변경")
+        public void testChangePasswordInvalidUser() {
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () ->
+                    memberService.changePassword(0L, faker.internet().password(8, 20, true, true)));
+            Assertions.assertEquals("userNotFound", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("비밀번호 Null")
+        public void testChangePasswordNull() {
+            Assertions.assertThrows(IllegalArgumentException.class, () -> memberService.changePassword(userId, null));
         }
 
     }
