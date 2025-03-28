@@ -1,7 +1,8 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.PostLike;
-import com.jay.sapapi.dto.postlike.PostLikeDTO;
+import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
+import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -10,19 +11,19 @@ import java.util.List;
 public interface PostLikeService {
 
     @Transactional(readOnly = true)
-    PostLikeDTO get(Long postId, Long userId);
+    PostLikeResponseDTO get(Long postId, Long userId);
 
     @Transactional(readOnly = true)
-    List<PostLikeDTO> getHeartsByPost(Long postId);
+    List<PostLikeResponseDTO> getHeartsByPost(Long postId);
 
     Long register(Long postId, Long userId);
 
     void remove(Long postId, Long userId);
 
-    PostLike dtoToEntity(PostLikeDTO postLikeDTO);
+    PostLike dtoToEntity(PostLikeCreateRequestDTO postLikeDTO);
 
-    default PostLikeDTO entityToDTO(PostLike postLike) {
-        return PostLikeDTO.builder()
+    default PostLikeResponseDTO entityToDTO(PostLike postLike) {
+        return PostLikeResponseDTO.builder()
                 .id(postLike.getId())
                 .postId(postLike.getPost().getId())
                 .userId(postLike.getMember().getId())

@@ -4,7 +4,8 @@ import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
-import com.jay.sapapi.dto.postlike.PostLikeDTO;
+import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
+import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -100,7 +101,7 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("단일 게시글 좋아요 조회")
         public void testGet() {
-            PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
+            PostLikeResponseDTO postLikeDTO = postLikeService.get(postId, userId);
             Assertions.assertEquals(postId, postLikeDTO.getPostId());
             Assertions.assertEquals(userId, postLikeDTO.getUserId());
         }
@@ -108,7 +109,7 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("게시글의 좋아요 리스트 조회")
         public void testGetListByPostId() {
-            List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
+            List<PostLikeResponseDTO> result = postLikeService.getHeartsByPost(postId);
             Assertions.assertEquals(POST_LIKE_COUNT, result.size());
         }
 
@@ -156,10 +157,10 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("게시글 삭제 시 좋아요 삭제")
         public void testDeleteByPostDelete() {
-            List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
+            List<PostLikeResponseDTO> hearts = postLikeService.getHeartsByPost(postId);
             postService.remove(postId);
 
-            for (PostLikeDTO heart : hearts) {
+            for (PostLikeResponseDTO heart : hearts) {
                 NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
                 Assertions.assertEquals("heartNotFound", e.getMessage());
             }
