@@ -2,7 +2,9 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberModifyRequestDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.member.response.MemberResponseDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +31,7 @@ public class MemberServiceTests {
 
     private final Faker faker = new Faker();
 
-    private MemberDTO memberDTO;
+    private MemberSignupRequestDTO signupRequestDTO;
 
     private Long userId;
 
@@ -41,20 +43,20 @@ public class MemberServiceTests {
 
     @BeforeEach
     public void registerMember() {
-        memberDTO = MemberDTO.builder()
+        signupRequestDTO = MemberSignupRequestDTO.builder()
                 .email("sample@example.com")
-                .password(faker.internet().password())
+                .password(faker.internet().password(8, 20, true, true))
                 .nickname("SampleUser")
                 .role(MemberRole.USER)
                 .build();
 
         try {
-            userId = memberService.register(memberDTO);
+            userId = memberService.register(signupRequestDTO);
         } catch (CustomValidationException e) {
             if ("emailAlreadyExists".equals(e.getMessage())) {
-                memberDTO.setEmail(faker.internet().emailAddress());
-                memberDTO.setNickname(faker.name().name());
-                userId = memberService.register(memberDTO);
+                signupRequestDTO.setEmail(faker.internet().emailAddress());
+                signupRequestDTO.setNickname(faker.regexify("[A-Za-z0-9]{5,10}"));
+                userId = memberService.register(signupRequestDTO);
             }
         }
     }
@@ -75,9 +77,9 @@ public class MemberServiceTests {
         @Test
         @DisplayName("단일 회원 조회")
         public void testGet() {
-            MemberDTO dto = memberService.get(userId);
-            Assertions.assertEquals(memberDTO.getEmail(), dto.getEmail());
-            Assertions.assertEquals(memberDTO.getNickname(), dto.getNickname());
+            MemberResponseDTO dto = memberService.get(userId);
+            Assertions.assertEquals(signupRequestDTO.getEmail(), dto.getEmail());
+            Assertions.assertEquals(signupRequestDTO.getNickname(), dto.getNickname());
         }
 
         @Test
@@ -96,15 +98,15 @@ public class MemberServiceTests {
         @Test
         @DisplayName("이메일 중복")
         public void testRegisterDuplicateEmail() {
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(memberDTO));
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(signupRequestDTO));
             Assertions.assertEquals("emailAlreadyExists", e.getMessage());
         }
 
         @Test
         @DisplayName("닉네임 중복")
         public void testRegisterDuplicateNickname() {
-            memberDTO.setEmail(faker.internet().emailAddress());
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(memberDTO));
+            signupRequestDTO.setEmail(faker.internet().emailAddress());
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.register(signupRequestDTO));
             Assertions.assertEquals("nicknameAlreadyExists", e.getMessage());
         }
 
@@ -117,13 +119,13 @@ public class MemberServiceTests {
         @Test
         @DisplayName("이메일로 회원 존재 여부 확인")
         public void testExistsByEmail() {
-            Assertions.assertTrue(memberService.existsByEmail(memberDTO.getEmail()));
+            Assertions.assertTrue(memberService.existsByEmail(signupRequestDTO.getEmail()));
         }
 
         @Test
         @DisplayName("닉네임으로 회원 존재 여부 확인")
         public void testExistsByNickname() {
-            Assertions.assertTrue(memberService.existsByNickname(memberDTO.getNickname()));
+            Assertions.assertTrue(memberService.existsByNickname(signupRequestDTO.getNickname()));
         }
 
     }
@@ -136,7 +138,7 @@ public class MemberServiceTests {
         @DisplayName("존재하지 않는 회원의 비밀번호 확인")
         public void testCheckPasswordInvalidUser() {
             NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () ->
-                    memberService.checkPassword(0L, faker.internet().password()));
+                    memberService.checkPassword(0L, faker.internet().password(8, 20, true, true)));
             Assertions.assertEquals("userNotFound", e.getMessage());
         }
 
@@ -144,7 +146,7 @@ public class MemberServiceTests {
         @DisplayName("잘못된 비밀번호 확인")
         public void testCheckPasswordInvalidPassword() {
             CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () ->
-                    memberService.checkPassword(userId, faker.internet().password()));
+                    memberService.checkPassword(userId, faker.internet().password(8, 20, true, true)));
             Assertions.assertEquals("invalidPassword", e.getMessage());
         }
 
@@ -157,57 +159,57 @@ public class MemberServiceTests {
         @Test
         @DisplayName("회원 정보 수정")
         public void testModify() {
-            String email = "modified@example.com";
-            String nickname = "ModifiedUser";
-            MemberDTO updatedMember = MemberDTO.builder()
-                    .id(userId)
+            String email = faker.internet().emailAddress();
+            String nickname = faker.regexify("[A-Za-z0-9]{5,10}");
+            MemberModifyRequestDTO updatedMember = MemberModifyRequestDTO.builder()
                     .email(email)
-                    .password(faker.internet().password())
                     .nickname(nickname)
                     .role(MemberRole.MANAGER)
                     .build();
-            memberService.modify(updatedMember);
+            memberService.modify(userId, updatedMember);
 
-            MemberDTO result = memberService.get(userId);
-            Assertions.assertNotEquals(memberDTO.getEmail(), result.getEmail());
+            MemberResponseDTO result = memberService.get(userId);
+            Assertions.assertNotEquals(signupRequestDTO.getEmail(), result.getEmail());
             Assertions.assertEquals(email, result.getEmail());
-            Assertions.assertNotEquals(memberDTO.getNickname(), result.getNickname());
+            Assertions.assertNotEquals(signupRequestDTO.getNickname(), result.getNickname());
             Assertions.assertEquals(nickname, result.getNickname());
         }
 
         @Test
         @DisplayName("이메일 중복 실패")
         public void testModifyDuplicateEmail() {
-            Long testUserId = memberService.register(MemberDTO.builder()
+            String testNickname = faker.regexify("[A-Za-z0-9]{5,10}");
+            Long testUserId = memberService.register(MemberSignupRequestDTO.builder()
                     .email(faker.internet().emailAddress())
-                    .password(faker.internet().password())
-                    .nickname(faker.name().name())
+                    .password(faker.internet().password(8, 20, true, true))
+                    .nickname(testNickname)
                     .role(MemberRole.USER)
                     .build());
 
-            MemberDTO updatedMember = MemberDTO.builder()
-                    .id(testUserId)
-                    .email(memberDTO.getEmail())
+            MemberModifyRequestDTO updatedMember = MemberModifyRequestDTO.builder()
+                    .email(signupRequestDTO.getEmail())
+                    .nickname(testNickname)
                     .build();
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(updatedMember));
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(testUserId, updatedMember));
             Assertions.assertEquals("emailAlreadyExists", e.getMessage());
         }
 
         @Test
         @DisplayName("닉네임 중복 실패")
         public void testModifyDuplicateNickname() {
-            Long testUserId = memberService.register(MemberDTO.builder()
-                    .email(faker.internet().emailAddress())
-                    .password(faker.internet().password())
-                    .nickname(faker.name().name())
+            String testEmail = faker.internet().emailAddress();
+            Long testUserId = memberService.register(MemberSignupRequestDTO.builder()
+                    .email(testEmail)
+                    .password(faker.internet().password(8, 20, true, true))
+                    .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                     .role(MemberRole.USER)
                     .build());
 
-            MemberDTO updatedMember = MemberDTO.builder()
-                    .id(testUserId)
-                    .nickname(memberDTO.getNickname())
+            MemberModifyRequestDTO updatedMember = MemberModifyRequestDTO.builder()
+                    .email(testEmail)
+                    .nickname(signupRequestDTO.getNickname())
                     .build();
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(updatedMember));
+            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> memberService.modify(testUserId, updatedMember));
             Assertions.assertEquals("nicknameAlreadyExists", e.getMessage());
         }
 

@@ -1,8 +1,11 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
+import com.jay.sapapi.dto.post.request.PostModifyRequestDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.service.CommentService;
 import com.jay.sapapi.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -26,7 +29,7 @@ public class PostController {
     @GetMapping("/{postId}")
     public Map<String, Object> get(@PathVariable Long postId) {
         postService.incrementViewCount(postId);
-        PostDTO dto = postService.get(postId);
+        PostResponseDTO dto = postService.get(postId);
         return Map.of("message", "success", "data", dto);
     }
 
@@ -37,13 +40,13 @@ public class PostController {
 
     @GetMapping("/")
     public Map<String, Object> getAll() {
-        List<PostDTO> result = postService.getList();
+        List<PostResponseDTO> result = postService.getList();
         return Map.of("message", "success", "data", result);
     }
 
     @PostMapping("/")
     @PreAuthorize("#dto.userId == authentication.principal.userId")
-    public ResponseEntity<?> register(PostDTO dto) {
+    public ResponseEntity<?> register(@Valid PostCreateRequestDTO dto) {
         long postId = postService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "registerSuccess", "data", Map.of("id", postId)));
@@ -51,9 +54,8 @@ public class PostController {
 
     @PutMapping("/{postId}")
     @PreAuthorize("#dto.userId == authentication.principal.userId")
-    public Map<String, Object> modify(@PathVariable Long postId, PostDTO dto) {
-        dto.setId(postId);
-        postService.modify(dto);
+    public Map<String, Object> modify(@PathVariable Long postId, @Valid PostModifyRequestDTO dto) {
+        postService.modify(postId, dto);
         return Map.of("message", "modifySuccess");
     }
 

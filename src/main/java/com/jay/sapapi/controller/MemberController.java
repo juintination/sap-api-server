@@ -1,8 +1,12 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberModifyRequestDTO;
+import com.jay.sapapi.dto.member.request.MemberPasswordChangeRequestDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.member.response.MemberResponseDTO;
 import com.jay.sapapi.service.MemberService;
 import com.jay.sapapi.util.exception.CustomValidationException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -22,8 +26,8 @@ public class MemberController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> get(@PathVariable("userId") Long userId) {
-        MemberDTO dto = memberService.get(userId);
-        return ResponseEntity.ok(Map.of("message", "success", "data", dto));
+        MemberResponseDTO responseDTO = memberService.get(userId);
+        return ResponseEntity.ok(Map.of("message", "success", "data", responseDTO));
     }
 
     @GetMapping("/emails/{email}")
@@ -39,7 +43,7 @@ public class MemberController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> register(@RequestBody MemberDTO dto) {
+    public ResponseEntity<?> register(@RequestBody @Valid MemberSignupRequestDTO dto) {
         long userId = memberService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "registerSuccess", "data", Map.of("id", userId)));
@@ -47,21 +51,20 @@ public class MemberController {
 
     @PutMapping("/{userId}")
     @PreAuthorize("#userId == authentication.principal.userId")
-    public ResponseEntity<?> modify(@PathVariable("userId") Long userId, @RequestBody MemberDTO dto) {
-        dto.setId(userId);
-        memberService.modify(dto);
+    public ResponseEntity<?> modify(
+            @PathVariable Long userId,
+            @RequestBody @Valid MemberModifyRequestDTO dto) {
+        memberService.modify(userId, dto);
         return ResponseEntity.ok(Map.of("message", "modifySuccess"));
     }
 
     @PutMapping("/{userId}/password")
     @PreAuthorize("#userId == authentication.principal.userId")
-    public ResponseEntity<?> changePassword(@PathVariable("userId") Long userId, @RequestBody Map<String, String> passwordMap) {
-        String oldPassword = passwordMap.get("oldPassword");
-        memberService.checkPassword(userId, oldPassword);
-        String newPassword = passwordMap.get("newPassword");
-        MemberDTO dto = memberService.get(userId);
-        dto.setPassword(newPassword);
-        memberService.modify(dto);
+    public ResponseEntity<?> changePassword(
+            @PathVariable Long userId,
+            @RequestBody @Valid MemberPasswordChangeRequestDTO dto) {
+        memberService.checkPassword(userId, dto.getOldPassword());
+        memberService.changePassword(userId, dto.getNewPassword());
         return ResponseEntity.ok(Map.of("message", "modifySuccess"));
     }
 

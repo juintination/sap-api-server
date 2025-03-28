@@ -3,8 +3,9 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.PostLike;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.post.PostDTO;
-import com.jay.sapapi.dto.postlike.PostLikeDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
+import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
+import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.repository.PostLikeRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
@@ -26,22 +27,22 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostService postService;
 
     @Override
-    public PostLikeDTO get(Long postId, Long userId) {
+    public PostLikeResponseDTO get(Long postId, Long userId) {
         Optional<PostLike> result = postLikeRepository.findByPostIdAndUserId(postId, userId);
         PostLike postLike = result.orElseThrow(() -> new NoSuchElementException("heartNotFound"));
         return entityToDTO(postLike);
     }
 
     @Override
-    public List<PostLikeDTO> getHeartsByPost(Long postId) {
-        PostDTO postDTO = postService.get(postId);
-        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.dtoToEntity(postDTO));
+    public List<PostLikeResponseDTO> getHeartsByPost(Long postId) {
+        PostResponseDTO postResponseDTO = postService.get(postId);
+        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.responseDtoToEntity(postResponseDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
     @Override
     public Long register(Long postId, Long userId) {
-        PostLikeDTO postLikeDTO = PostLikeDTO.builder()
+        PostLikeCreateRequestDTO postLikeDTO = PostLikeCreateRequestDTO.builder()
                 .postId(postId)
                 .userId(userId)
                 .build();
@@ -66,9 +67,8 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public PostLike dtoToEntity(PostLikeDTO postLikeDTO) {
+    public PostLike dtoToEntity(PostLikeCreateRequestDTO postLikeDTO) {
         return PostLike.builder()
-                .id(postLikeDTO.getId())
                 .member(Member.builder().id(postLikeDTO.getUserId()).build())
                 .post(Post.builder().id(postLikeDTO.getPostId()).build())
                 .build();

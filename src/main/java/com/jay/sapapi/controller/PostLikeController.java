@@ -1,6 +1,6 @@
 package com.jay.sapapi.controller;
 
-import com.jay.sapapi.dto.postlike.PostLikeDTO;
+import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +21,7 @@ public class PostLikeController {
 
     @GetMapping("/users/{userId}")
     public Map<String, Object> get(@PathVariable Long postId, @PathVariable Long userId) {
-        PostLikeDTO dto = postLikeService.get(postId, userId);
+        PostLikeResponseDTO dto = postLikeService.get(postId, userId);
         return Map.of("message", "success", "data", Map.of("data", dto));
     }
 

@@ -2,9 +2,11 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.member.MemberDTO;
-import com.jay.sapapi.dto.post.PostDTO;
-import com.jay.sapapi.util.exception.CustomValidationException;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
+import com.jay.sapapi.dto.post.request.PostModifyRequestDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,21 +55,21 @@ public class PostServiceTests {
     @BeforeEach
     public void registerPosts() {
 
-        MemberDTO memberDTO = MemberDTO.builder()
+        MemberSignupRequestDTO memberDTO = MemberSignupRequestDTO.builder()
                 .email(faker.internet().emailAddress())
-                .password(faker.internet().password())
-                .nickname(faker.name().name())
+                .password(faker.internet().password(8, 20, true, true))
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .role(MemberRole.USER)
                 .build();
         userId = memberService.register(memberDTO);
 
         for (int i = 0; i < POST_COUNT; i++) {
-            title = faker.book().title();
+            title = faker.lorem().characters(1, 20, true, true);
             content = faker.lorem().sentence();
-            postId = postService.register(PostDTO.builder()
+            postId = postService.register(PostCreateRequestDTO.builder()
+                    .userId(userId)
                     .title(title)
                     .content(content)
-                    .userId(userId)
                     .build());
         }
 
@@ -85,23 +87,23 @@ public class PostServiceTests {
         @Test
         @DisplayName("단일 게시글 조회")
         public void testGet() {
-            PostDTO postDTO = postService.get(postId);
-            Assertions.assertEquals(title, postDTO.getTitle());
-            Assertions.assertEquals(content, postDTO.getContent());
+            PostResponseDTO postResponseDTO = postService.get(postId);
+            Assertions.assertEquals(title, postResponseDTO.getTitle());
+            Assertions.assertEquals(content, postResponseDTO.getContent());
         }
 
         @Test
         @DisplayName("게시글 조회수 증가")
         public void testIncreaseViewCount() {
             postService.incrementViewCount(postId);
-            PostDTO postDTO = postService.get(postId);
-            Assertions.assertEquals(1, postDTO.getViewCount());
+            PostResponseDTO postResponseDTO = postService.get(postId);
+            Assertions.assertEquals(1, postResponseDTO.getViewCount());
         }
 
         @Test
         @DisplayName("게시글 목록 조회")
         public void testGetList() {
-            List<PostDTO> result = postService.getList();
+            List<PostResponseDTO> result = postService.getList();
             Assertions.assertEquals(POST_COUNT, result.size());
         }
 
@@ -113,35 +115,33 @@ public class PostServiceTests {
 
         @Test
         @DisplayName("게시글 제목 없음")
-        public void testRegisterEmailNull() {
-            PostDTO postDTO = PostDTO.builder()
+        public void testRegisterTitleNull() {
+            PostCreateRequestDTO postDTO = PostCreateRequestDTO.builder()
                     .title(null)
                     .content(faker.lorem().sentence())
                     .userId(userId)
                     .build();
 
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postService.register(postDTO));
-            Assertions.assertEquals("invalidPostTitle", e.getMessage());
+            ConstraintViolationException e = Assertions.assertThrows(ConstraintViolationException.class, () -> postService.register(postDTO));
         }
 
         @Test
         @DisplayName("게시글 내용 없음")
-        public void testRegisterNicknameNull() {
-            PostDTO postDTO = PostDTO.builder()
-                    .title(faker.book().title())
+        public void testRegisterContentNull() {
+            PostCreateRequestDTO postDTO = PostCreateRequestDTO.builder()
+                    .title(faker.lorem().characters(1, 20, true, true))
                     .content(null)
                     .userId(userId)
                     .build();
 
-            CustomValidationException e = Assertions.assertThrows(CustomValidationException.class, () -> postService.register(postDTO));
-            Assertions.assertEquals("invalidPostContent", e.getMessage());
+            ConstraintViolationException e = Assertions.assertThrows(ConstraintViolationException.class, () -> postService.register(postDTO));
         }
 
         @Test
         @DisplayName("게시글 작성자 없음")
-        public void testRegisterRoleNull() {
-            PostDTO postDTO = PostDTO.builder()
-                    .title(faker.book().title())
+        public void testRegisterUserIdNull() {
+            PostCreateRequestDTO postDTO = PostCreateRequestDTO.builder()
+                    .title(faker.lorem().characters(1, 20, true, true))
                     .content(faker.lorem().sentence())
                     .userId(null)
                     .build();
@@ -158,16 +158,15 @@ public class PostServiceTests {
         @Test
         @DisplayName("게시글 수정")
         public void testModify() {
-            PostDTO postDTO = PostDTO.builder()
-                    .id(postId)
+            PostModifyRequestDTO postDTO = PostModifyRequestDTO.builder()
                     .title("ModifiedTitle")
                     .content("ModifiedContent")
                     .postImageUrl(faker.internet().image())
                     .build();
 
-            postService.modify(postDTO);
+            postService.modify(postId, postDTO);
 
-            PostDTO result = postService.get(postId);
+            PostResponseDTO result = postService.get(postId);
             Assertions.assertEquals("ModifiedTitle", result.getTitle());
             Assertions.assertEquals("ModifiedContent", result.getContent());
             Assertions.assertNotNull(result.getPostImageUrl());
@@ -176,13 +175,12 @@ public class PostServiceTests {
         @Test
         @DisplayName("존재하지 않는 게시글 수정")
         public void testModifyInvalidPost() {
-            PostDTO postDTO = PostDTO.builder()
-                    .id(0L)
+            PostModifyRequestDTO postDTO = PostModifyRequestDTO.builder()
                     .title("ModifiedTitle")
                     .content("ModifiedContent")
                     .build();
 
-            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postService.modify(postDTO));
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postService.modify(0L, postDTO));
             Assertions.assertEquals("postNotFound", e.getMessage());
         }
 

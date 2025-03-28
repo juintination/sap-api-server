@@ -2,9 +2,10 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.postlike.PostLikeDTO;
-import com.jay.sapapi.dto.member.MemberDTO;
-import com.jay.sapapi.dto.post.PostDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
+import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
+import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -56,25 +57,25 @@ public class PostLikeServiceTests {
     @BeforeEach
     public void registerPostLikes() {
 
-        MemberDTO writerDTO = MemberDTO.builder()
+        MemberSignupRequestDTO writerDTO = MemberSignupRequestDTO.builder()
                 .email(faker.internet().emailAddress())
-                .password(faker.internet().password())
-                .nickname(faker.name().name())
+                .password(faker.internet().password(8, 20, true, true))
+                .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                 .role(MemberRole.USER)
                 .build();
         Long writerId = memberService.register(writerDTO);
 
-        postId = postService.register(PostDTO.builder()
-                .title(faker.book().title())
+        postId = postService.register(PostCreateRequestDTO.builder()
+                .title(faker.lorem().characters(1, 20, true, true))
                 .content(faker.lorem().sentence())
                 .userId(writerId)
                 .build());
 
         for (int i = 0; i < POST_LIKE_COUNT; i++) {
-            MemberDTO memberDTO = MemberDTO.builder()
+            MemberSignupRequestDTO memberDTO = MemberSignupRequestDTO.builder()
                     .email(faker.internet().emailAddress())
-                    .password(faker.internet().password())
-                    .nickname(faker.name().name())
+                    .password(faker.internet().password(8, 20, true, true))
+                    .nickname(faker.regexify("[A-Za-z0-9]{5,10}"))
                     .role(MemberRole.USER)
                     .build();
             userId = memberService.register(memberDTO);
@@ -100,7 +101,7 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("단일 게시글 좋아요 조회")
         public void testGet() {
-            PostLikeDTO postLikeDTO = postLikeService.get(postId, userId);
+            PostLikeResponseDTO postLikeDTO = postLikeService.get(postId, userId);
             Assertions.assertEquals(postId, postLikeDTO.getPostId());
             Assertions.assertEquals(userId, postLikeDTO.getUserId());
         }
@@ -108,7 +109,7 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("게시글의 좋아요 리스트 조회")
         public void testGetListByPostId() {
-            List<PostLikeDTO> result = postLikeService.getHeartsByPost(postId);
+            List<PostLikeResponseDTO> result = postLikeService.getHeartsByPost(postId);
             Assertions.assertEquals(POST_LIKE_COUNT, result.size());
         }
 
@@ -156,10 +157,10 @@ public class PostLikeServiceTests {
         @Test
         @DisplayName("게시글 삭제 시 좋아요 삭제")
         public void testDeleteByPostDelete() {
-            List<PostLikeDTO> hearts = postLikeService.getHeartsByPost(postId);
+            List<PostLikeResponseDTO> hearts = postLikeService.getHeartsByPost(postId);
             postService.remove(postId);
 
-            for (PostLikeDTO heart : hearts) {
+            for (PostLikeResponseDTO heart : hearts) {
                 NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(heart.getPostId(), heart.getUserId()));
                 Assertions.assertEquals("heartNotFound", e.getMessage());
             }

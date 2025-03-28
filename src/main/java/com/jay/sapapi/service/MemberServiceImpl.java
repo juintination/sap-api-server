@@ -2,7 +2,9 @@ package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.member.MemberDTO;
+import com.jay.sapapi.dto.member.request.MemberModifyRequestDTO;
+import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
+import com.jay.sapapi.dto.member.response.MemberResponseDTO;
 import com.jay.sapapi.repository.MemberRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public MemberDTO get(Long userId) {
+    public MemberResponseDTO get(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("userNotFound"));
         return entityToDTO(member);
@@ -39,51 +41,39 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Long register(MemberDTO memberDTO) {
+    public Long register(MemberSignupRequestDTO memberSignupRequestDTO) {
 
-        if (memberRepository.existsByEmail(memberDTO.getEmail())) {
+        if (memberRepository.existsByEmail(memberSignupRequestDTO.getEmail())) {
             throw new CustomValidationException("emailAlreadyExists");
         }
 
-        if (memberRepository.existsByNickname(memberDTO.getNickname())) {
+        if (memberRepository.existsByNickname(memberSignupRequestDTO.getNickname())) {
             throw new CustomValidationException("nicknameAlreadyExists");
         }
 
-        Member member = memberRepository.save(dtoToEntity(memberDTO));
+        Member member = memberRepository.save(dtoToEntity(memberSignupRequestDTO));
         return member.getId();
     }
 
     @Override
-    public void modify(MemberDTO memberDTO) {
-        Member member = memberRepository.findById(memberDTO.getId())
+    public void modify(Long userId, MemberModifyRequestDTO memberModifyRequestDTO) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("userNotFound"));
 
-        if (memberDTO.getEmail() != null && !memberDTO.getEmail().isEmpty()) {
-            if (!member.getEmail().equals(memberDTO.getEmail()) &&
-                    memberRepository.existsByEmail(memberDTO.getEmail())) {
-                throw new CustomValidationException("emailAlreadyExists");
-            }
-            try {
-                member.changeEmail(memberDTO.getEmail());
-            } catch (IllegalArgumentException e) {
-                throw new CustomValidationException("invalidEmail");
-            }
+        if (!member.getEmail().equals(memberModifyRequestDTO.getEmail()) &&
+                memberRepository.existsByEmail(memberModifyRequestDTO.getEmail())) {
+            throw new CustomValidationException("emailAlreadyExists");
         }
+        member.changeEmail(memberModifyRequestDTO.getEmail());
 
-        if (memberDTO.getNickname() != null && !memberDTO.getNickname().isEmpty()) {
-            if (!member.getNickname().equals(memberDTO.getNickname()) &&
-                    memberRepository.existsByNickname(memberDTO.getNickname())) {
-                throw new CustomValidationException("nicknameAlreadyExists");
-            }
-            member.changeNickname(memberDTO.getNickname());
+        if (!member.getNickname().equals(memberModifyRequestDTO.getNickname()) &&
+                memberRepository.existsByNickname(memberModifyRequestDTO.getNickname())) {
+            throw new CustomValidationException("nicknameAlreadyExists");
         }
+        member.changeNickname(memberModifyRequestDTO.getNickname());
 
-        if (memberDTO.getPassword() != null && !memberDTO.getPassword().isEmpty()) {
-            member.changePassword(passwordEncoder.encode(memberDTO.getPassword()));
-        }
-
-        if (memberDTO.getProfileImageUrl() != null && !memberDTO.getProfileImageUrl().isEmpty()) {
-            member.changeProfileImageUrl(memberDTO.getProfileImageUrl());
+        if (memberModifyRequestDTO.getProfileImageUrl() != null && !memberModifyRequestDTO.getProfileImageUrl().isEmpty()) {
+            member.changeProfileImageUrl(memberModifyRequestDTO.getProfileImageUrl());
         }
 
         memberRepository.save(member);
@@ -107,14 +97,20 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member dtoToEntity(MemberDTO memberDTO) {
+    public void changePassword(Long userId, String newPassword) {
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("userNotFound"));
+        member.changePassword(passwordEncoder.encode(newPassword));
+    }
+
+    @Override
+    public Member dtoToEntity(MemberSignupRequestDTO dto) {
         return Member.builder()
-                .id(memberDTO.getId())
-                .email(memberDTO.getEmail())
-                .password(memberDTO.getPassword() != null ? passwordEncoder.encode(memberDTO.getPassword()) : null)
-                .nickname(memberDTO.getNickname())
-                .profileImageUrl(memberDTO.getProfileImageUrl())
-                .memberRole(memberDTO.getRole() != null ? memberDTO.getRole() : MemberRole.USER)
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .nickname(dto.getNickname())
+                .profileImageUrl(dto.getProfileImageUrl())
+                .memberRole(dto.getRole() != null ? dto.getRole() : MemberRole.USER)
                 .build();
     }
 
