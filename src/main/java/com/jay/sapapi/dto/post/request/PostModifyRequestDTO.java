@@ -20,7 +20,7 @@ public class PostModifyRequestDTO {
     @Positive(message = "유효한 작성자 ID를 입력해주세요.")
     private Long userId;
 
-    @Size(max = 20, message = "제목은 최대 20자까지 가능합니다.")
+    @Size(max = 26, message = "제목은 최대 26자까지 가능합니다.")
     private String title;
 
     private String content;
