@@ -2,10 +2,12 @@ package com.jay.sapapi.service;
 
 import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
-import com.jay.sapapi.dto.comment.CommentDTO;
+import com.jay.sapapi.dto.comment.request.CommentCreateRequestDTO;
+import com.jay.sapapi.dto.comment.request.CommentModifyRequestDTO;
+import com.jay.sapapi.dto.comment.response.CommentResponseDTO;
 import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
-import com.jay.sapapi.util.exception.CustomValidationException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -82,7 +84,7 @@ public class CommentServiceTests {
             commenterId = memberService.register(memberDTO);
 
             content = faker.lorem().sentence();
-            commentId = commentService.register(CommentDTO.builder()
+            commentId = commentService.register(CommentCreateRequestDTO.builder()
                     .postId(postId)
                     .userId(commenterId)
                     .content(content)
@@ -107,14 +109,14 @@ public class CommentServiceTests {
         @Test
         @DisplayName("단일 댓글 조회")
         public void testGet() {
-            CommentDTO commentDTO = commentService.get(commentId);
+            CommentResponseDTO commentDTO = commentService.get(commentId);
             Assertions.assertEquals(content, commentDTO.getContent());
         }
 
         @Test
         @DisplayName("게시글의 댓글 리스트 조회")
         public void testGetListByPostId() {
-            List<CommentDTO> result = commentService.getCommentsByPostId(postId);
+            List<CommentResponseDTO> result = commentService.getCommentsByPostId(postId);
             Assertions.assertEquals(COMMENT_COUNT, result.size());
         }
 
@@ -127,13 +129,13 @@ public class CommentServiceTests {
         @Test
         @DisplayName("댓글 내용 없음")
         public void testRegister() {
-            CommentDTO dto = CommentDTO.builder()
+            CommentCreateRequestDTO dto = CommentCreateRequestDTO.builder()
                     .postId(postId)
                     .userId(commenterId)
                     .content(null)
                     .build();
 
-            Assertions.assertThrows(CustomValidationException.class, () -> commentService.register(dto));
+            Assertions.assertThrows(ConstraintViolationException.class, () -> commentService.register(dto));
         }
 
     }
@@ -145,23 +147,23 @@ public class CommentServiceTests {
         @Test
         @DisplayName("댓글 수정")
         public void testModify() {
-            CommentDTO commentDTO = commentService.get(commentId);
-            commentDTO.setContent("ModifiedContent");
-            commentService.modify(commentDTO);
+            CommentModifyRequestDTO commentDTO = CommentModifyRequestDTO.builder()
+                    .content("ModifiedContent")
+                    .build();
+            commentService.modify(commentId, commentDTO);
 
-            CommentDTO result = commentService.get(commentId);
+            CommentResponseDTO result = commentService.get(commentId);
             Assertions.assertEquals("ModifiedContent", result.getContent());
         }
 
         @Test
         @DisplayName("존재하지 않는 댓글 수정")
         public void testModifyInvalidComment() {
-            CommentDTO commentDTO = CommentDTO.builder()
-                    .id(0L)
+            CommentModifyRequestDTO commentDTO = CommentModifyRequestDTO.builder()
                     .content("ModifiedContent")
                     .build();
 
-            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.modify(commentDTO));
+            NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> commentService.modify(0L, commentDTO));
             Assertions.assertEquals("commentNotFound", e.getMessage());
         }
 
@@ -189,7 +191,7 @@ public class CommentServiceTests {
         @Test
         @DisplayName("게시글 삭제 시 댓글 삭제")
         public void testDeleteByPostDelete() {
-            List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
+            List<CommentResponseDTO> comments = commentService.getCommentsByPostId(postId);
             postService.remove(postId);
 
             comments.forEach(comment -> {

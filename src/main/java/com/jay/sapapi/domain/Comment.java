@@ -2,6 +2,7 @@ package com.jay.sapapi.domain;
 
 import com.jay.sapapi.domain.common.TimeStampedEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -16,6 +17,8 @@ public class Comment extends TimeStampedEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "댓글 내용은 필수 입력값입니다.")
+    @Column(nullable = false, length = 1000)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,5 +32,4 @@ public class Comment extends TimeStampedEntity {
     public void changeContent(String content) {
         this.content = content;
     }
-
 }

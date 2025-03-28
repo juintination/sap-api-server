@@ -1,7 +1,9 @@
 package com.jay.sapapi.service;
 
 import com.jay.sapapi.domain.Comment;
-import com.jay.sapapi.dto.comment.CommentDTO;
+import com.jay.sapapi.dto.comment.request.CommentCreateRequestDTO;
+import com.jay.sapapi.dto.comment.request.CommentModifyRequestDTO;
+import com.jay.sapapi.dto.comment.response.CommentResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -10,21 +12,21 @@ import java.util.List;
 public interface CommentService {
 
     @Transactional(readOnly = true)
-    CommentDTO get(Long commentId);
+    CommentResponseDTO get(Long commentId);
 
     @Transactional(readOnly = true)
-    List<CommentDTO> getCommentsByPostId(Long postId);
+    List<CommentResponseDTO> getCommentsByPostId(Long postId);
 
-    Long register(CommentDTO commentDTO);
+    Long register(CommentCreateRequestDTO commentDTO);
 
-    void modify(CommentDTO commentDTO);
+    void modify(Long commentId, CommentModifyRequestDTO commentDTO);
 
     void remove(Long commentId);
 
-    Comment dtoToEntity(CommentDTO commentDTO);
+    Comment dtoToEntity(CommentCreateRequestDTO commentDTO);
 
-    default CommentDTO entityToDTO(Comment comment) {
-        return CommentDTO.builder()
+    default CommentResponseDTO entityToDTO(Comment comment) {
+        return CommentResponseDTO.builder()
                 .id(comment.getId())
                 .postId(comment.getPost().getId())
                 .content(comment.getContent())

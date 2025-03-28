@@ -3,7 +3,9 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.Comment;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.comment.CommentDTO;
+import com.jay.sapapi.dto.comment.request.CommentCreateRequestDTO;
+import com.jay.sapapi.dto.comment.request.CommentModifyRequestDTO;
+import com.jay.sapapi.dto.comment.response.CommentResponseDTO;
 import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.repository.CommentRepository;
 import com.jay.sapapi.util.exception.CustomValidationException;
@@ -26,31 +28,28 @@ public class CommentServiceImpl implements CommentService {
     private final PostService postService;
 
     @Override
-    public CommentDTO get(Long commentId) {
+    public CommentResponseDTO get(Long commentId) {
         Optional<Comment> result = commentRepository.getCommentByCommentId(commentId);
         Comment comment = result.orElseThrow(() -> new NoSuchElementException("commentNotFound"));
         return entityToDTO(comment);
     }
 
     @Override
-    public List<CommentDTO> getCommentsByPostId(Long postId) {
+    public List<CommentResponseDTO> getCommentsByPostId(Long postId) {
         PostResponseDTO postResponseDTO = postService.get(postId);
         List<Comment> result = commentRepository.getCommentsByPostOrderById(postService.responseDtoToEntity(postResponseDTO));
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
     @Override
-    public Long register(CommentDTO commentDTO) {
-        if (commentDTO.getContent() == null) {
-            throw new CustomValidationException("invalidCommentContent");
-        }
+    public Long register(CommentCreateRequestDTO commentDTO) {
         Comment result = commentRepository.save(dtoToEntity(commentDTO));
         return result.getId();
     }
 
     @Override
-    public void modify(CommentDTO commentDTO) {
-        Optional<Comment> result = commentRepository.findById(commentDTO.getId());
+    public void modify(Long commentId, CommentModifyRequestDTO commentDTO) {
+        Optional<Comment> result = commentRepository.findById(commentId);
         Comment comment = result.orElseThrow(() -> new NoSuchElementException("commentNotFound"));
         comment.changeContent(commentDTO.getContent());
         commentRepository.save(comment);
@@ -65,9 +64,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment dtoToEntity(CommentDTO commentDTO) {
+    public Comment dtoToEntity(CommentCreateRequestDTO commentDTO) {
         return Comment.builder()
-                .id(commentDTO.getId())
                 .content(commentDTO.getContent())
                 .post(Post.builder().id(commentDTO.getPostId()).build())
                 .commenter(Member.builder().id(commentDTO.getUserId()).build())
