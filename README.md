@@ -12,12 +12,8 @@
 ### 주요 기능
 
 #### JWT 기반 인증
-
-- **보안 강화:**  
-  Spring Security와 JWT(Json Web Token)를 활용하여 사용자의 인증 및 인가를 처리합니다. JWT를 통해 stateless한 인증 방식을 구현함으로써, 서버의 부하를 줄이고 확장성을 높였습니다.
-
-- **토큰 관리:**  
-  로그인 성공 시 JWT 토큰을 발급하며, 클라이언트는 이 토큰을 통해 이후 요청 시 인증 정보를 포함하여 보안이 필요한 API에 접근할 수 있습니다.
+- **인증 및 인가** Spring Security와 JWT(Json Web Token)를 활용하여 사용자의 인증 및 인가를 처리합니다.
+  - JWT를 통해 stateless한 인증 방식을 구현함으로써, 서버의 부하를 줄이고 확장성을 높였습니다.
 
 #### 데이터베이스 설계
 - **Member, Post, Comment, PostLike 테이블**
