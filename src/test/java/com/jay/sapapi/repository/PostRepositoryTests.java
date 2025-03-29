@@ -142,6 +142,10 @@ public class PostRepositoryTests {
 
             Member writer = (Member) arr[1];
             Assertions.assertEquals(member.toString(), writer.toString());
+
+            Long commentsCount = (Long) arr[2];
+            Assertions.assertEquals(COMMENT_COUNT, commentsCount);
+            log.info("Comments Count: {}", commentsCount);
         }
 
         @Test
@@ -177,11 +181,7 @@ public class PostRepositoryTests {
 
                 Long commentsCount = (Long) entity[2];
                 Assertions.assertEquals(COMMENT_COUNT, commentsCount);
-                log.info("Comments Count: {}", entity[2]);
-
-                Long heartsCount = (Long) entity[3];
-                Assertions.assertEquals(1, heartsCount);
-                log.info("Hearts Count: {}", entity[3]);
+                log.info("Comments Count: {}", commentsCount);
             });
         }
 

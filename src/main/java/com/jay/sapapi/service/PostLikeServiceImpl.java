@@ -3,7 +3,6 @@ package com.jay.sapapi.service;
 import com.jay.sapapi.domain.PostLike;
 import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.Post;
-import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
 import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.repository.PostLikeRepository;
@@ -35,8 +34,13 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public List<PostLikeResponseDTO> getHeartsByPost(Long postId) {
-        PostResponseDTO postResponseDTO = postService.get(postId);
-        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(postService.responseDtoToEntity(postResponseDTO));
+        List<PostLike> result = postLikeRepository.getPostLikesByPostOrderByCreatedAt(Post.builder().id(postId).build());
+        return result.stream().map(this::entityToDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PostLikeResponseDTO> getHeartsByMember(Long userId) {
+        List<PostLike> result = postLikeRepository.getPostLikesByMemberOrderByCreatedAt(Member.builder().id(userId).build());
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 
@@ -52,6 +56,7 @@ public class PostLikeServiceImpl implements PostLikeService {
             throw new CustomValidationException("heartAlreadyExists");
         }
 
+        postService.incrementLikeCount(postId);
         PostLike postLike = postLikeRepository.save(dtoToEntity(postLikeDTO));
         return postLike.getId();
     }
@@ -62,6 +67,8 @@ public class PostLikeServiceImpl implements PostLikeService {
         if (existingHeart.isEmpty()) {
             throw new NoSuchElementException("heartNotFound");
         }
+
+        postService.decrementLikeCount(postId);
         Long heartId = existingHeart.get().getId();
         postLikeRepository.deleteById(heartId);
     }

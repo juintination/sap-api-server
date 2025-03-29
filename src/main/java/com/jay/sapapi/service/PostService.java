@@ -17,6 +17,10 @@ public interface PostService {
 
     void incrementViewCount(Long postId);
 
+    void incrementLikeCount(Long postId);
+
+    void decrementLikeCount(Long postId);
+
     @Transactional(readOnly = true)
     List<PostResponseDTO> getList();
 
@@ -28,9 +32,7 @@ public interface PostService {
 
     Post dtoToEntity(PostCreateRequestDTO postDTO);
 
-    Post responseDtoToEntity(PostResponseDTO postResponseDTO);
-
-    default PostResponseDTO entityToDTO(Post post, Member writer, int commentCount, int likeCount) {
+    default PostResponseDTO entityToDTO(Post post, Member writer, Long commentCount) {
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .userId(writer.getId())
@@ -42,7 +44,7 @@ public interface PostService {
                 .viewCount(post.getViewCount())
                 .postImageUrl(post.getPostImageUrl())
                 .commentCount(commentCount)
-                .likeCount(likeCount)
+                .likeCount(post.getLikeCount())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .build();

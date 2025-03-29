@@ -1,5 +1,6 @@
 package com.jay.sapapi.repository;
 
+import com.jay.sapapi.domain.Member;
 import com.jay.sapapi.domain.PostLike;
 import com.jay.sapapi.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     Optional<PostLike> findByPostIdAndUserId(@Param("postId") Long postId, @Param("userId") Long userId);
 
     List<PostLike> getPostLikesByPostOrderByCreatedAt(Post post);
+
+    List<PostLike> getPostLikesByMemberOrderByCreatedAt(Member member);
 
 }

@@ -17,7 +17,7 @@ public class PostResponseDTO {
 
     private Long viewCount;
 
-    private int commentCount, likeCount;
+    private Long commentCount, likeCount;
 
     private String postImageUrl;
 
