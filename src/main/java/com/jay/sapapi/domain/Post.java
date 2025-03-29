@@ -36,6 +36,9 @@ public class Post extends TimeStampedEntity {
     @Builder.Default
     private Long viewCount = 0L;
 
+    @Builder.Default
+    private Long likeCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Member writer;
@@ -60,6 +63,16 @@ public class Post extends TimeStampedEntity {
 
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 
 }

@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
             throw new NoSuchElementException("postNotFound");
         }
         Object[] arr = (Object[]) result;
-        return entityToDTO((Post) arr[0], (Member) arr[1], ((Number) arr[2]).intValue(), ((Number) arr[3]).intValue());
+        return entityToDTO((Post) arr[0], (Member) arr[1], ((Number) arr[2]).longValue());
     }
 
     @Override
@@ -40,12 +40,28 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public void incrementLikeCount(Long postId) {
+        Optional<Post> result = postRepository.findById(postId);
+        Post post = result.orElseThrow(() -> new NoSuchElementException("postNotFound"));
+        post.incrementLikeCount();
+        postRepository.save(post);
+    }
+
+    @Override
+    public void decrementLikeCount(Long postId) {
+        Optional<Post> result = postRepository.findById(postId);
+        Post post = result.orElseThrow(() -> new NoSuchElementException("postNotFound"));
+        post.decrementLikeCount();
+        postRepository.save(post);
+    }
+
+    @Override
     public List<PostResponseDTO> getList() {
         List<Object> postList = postRepository.getAllPosts();
         return postList.stream().map(arr -> {
             Object[] entityArr = (Object[]) arr;
             return entityToDTO((Post) entityArr[0], (Member) entityArr[1],
-                    ((Number) entityArr[2]).intValue(), ((Number) entityArr[3]).intValue());
+                    ((Number) entityArr[2]).longValue());
         }).toList();
     }
 
@@ -96,6 +112,7 @@ public class PostServiceImpl implements PostService {
                 .title(postResponseDTO.getTitle())
                 .content(postResponseDTO.getContent())
                 .viewCount(postResponseDTO.getViewCount() != null ? postResponseDTO.getViewCount() : 0)
+                .likeCount(postResponseDTO.getLikeCount() != null ? postResponseDTO.getLikeCount() : 0)
                 .postImageUrl(postResponseDTO.getPostImageUrl())
                 .build();
     }

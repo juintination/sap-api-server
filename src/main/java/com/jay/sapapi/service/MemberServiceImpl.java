@@ -23,6 +23,8 @@ public class MemberServiceImpl implements MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final PostLikeService postLikeService;
+
     @Override
     public MemberResponseDTO get(Long userId) {
         Member member = memberRepository.findById(userId)
@@ -84,6 +86,7 @@ public class MemberServiceImpl implements MemberService {
         if (!memberRepository.existsById(userId)) {
             throw new NoSuchElementException("userNotFound");
         }
+        postLikeService.getHeartsByMember(userId).forEach(heart -> postLikeService.remove(heart.getPostId(), userId));
         memberRepository.deleteById(userId);
     }
 

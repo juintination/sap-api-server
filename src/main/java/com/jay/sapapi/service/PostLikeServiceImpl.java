@@ -41,6 +41,12 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
+    public List<PostLikeResponseDTO> getHeartsByMember(Long userId) {
+        List<PostLike> result = postLikeRepository.getPostLikesByMemberOrderByCreatedAt(Member.builder().id(userId).build());
+        return result.stream().map(this::entityToDTO).collect(Collectors.toList());
+    }
+
+    @Override
     public Long register(Long postId, Long userId) {
         PostLikeCreateRequestDTO postLikeDTO = PostLikeCreateRequestDTO.builder()
                 .postId(postId)
@@ -52,6 +58,7 @@ public class PostLikeServiceImpl implements PostLikeService {
             throw new CustomValidationException("heartAlreadyExists");
         }
 
+        postService.incrementLikeCount(postId);
         PostLike postLike = postLikeRepository.save(dtoToEntity(postLikeDTO));
         return postLike.getId();
     }
@@ -62,6 +69,8 @@ public class PostLikeServiceImpl implements PostLikeService {
         if (existingHeart.isEmpty()) {
             throw new NoSuchElementException("heartNotFound");
         }
+
+        postService.decrementLikeCount(postId);
         Long heartId = existingHeart.get().getId();
         postLikeRepository.deleteById(heartId);
     }

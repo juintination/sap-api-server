@@ -4,7 +4,7 @@ import com.github.javafaker.Faker;
 import com.jay.sapapi.domain.MemberRole;
 import com.jay.sapapi.dto.member.request.MemberSignupRequestDTO;
 import com.jay.sapapi.dto.post.request.PostCreateRequestDTO;
-import com.jay.sapapi.dto.postlike.request.PostLikeCreateRequestDTO;
+import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.dto.postlike.response.PostLikeResponseDTO;
 import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.extern.log4j.Log4j2;
@@ -172,6 +172,16 @@ public class PostLikeServiceTests {
             memberService.remove(userId);
             NoSuchElementException e = Assertions.assertThrows(NoSuchElementException.class, () -> postLikeService.get(postId, userId));
             Assertions.assertEquals("heartNotFound", e.getMessage());
+        }
+
+        @Test
+        @DisplayName("회원 삭제 시 게시글 좋아요 수 감소")
+        public void testDecreaseLikeCountByMemberDelete() {
+            log.info("Before member delete: {}", postService.get(postId).getLikeCount());
+            memberService.remove(userId);
+            PostResponseDTO postDTO = postService.get(postId);
+            log.info("After member delete: {}", postDTO.getLikeCount());
+            Assertions.assertEquals(POST_LIKE_COUNT - 1, postDTO.getLikeCount());
         }
 
     }
