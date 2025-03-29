@@ -104,17 +104,4 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
-    @Override
-    public Post responseDtoToEntity(PostResponseDTO postResponseDTO) {
-        return Post.builder()
-                .id(postResponseDTO.getId())
-                .writer(Member.builder().id(postResponseDTO.getUserId()).build())
-                .title(postResponseDTO.getTitle())
-                .content(postResponseDTO.getContent())
-                .viewCount(postResponseDTO.getViewCount() != null ? postResponseDTO.getViewCount() : 0)
-                .likeCount(postResponseDTO.getLikeCount() != null ? postResponseDTO.getLikeCount() : 0)
-                .postImageUrl(postResponseDTO.getPostImageUrl())
-                .build();
-    }
-
 }

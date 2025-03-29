@@ -6,9 +6,7 @@ import com.jay.sapapi.domain.Post;
 import com.jay.sapapi.dto.comment.request.CommentCreateRequestDTO;
 import com.jay.sapapi.dto.comment.request.CommentModifyRequestDTO;
 import com.jay.sapapi.dto.comment.response.CommentResponseDTO;
-import com.jay.sapapi.dto.post.response.PostResponseDTO;
 import com.jay.sapapi.repository.CommentRepository;
-import com.jay.sapapi.util.exception.CustomValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -36,8 +34,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentResponseDTO> getCommentsByPostId(Long postId) {
-        PostResponseDTO postResponseDTO = postService.get(postId);
-        List<Comment> result = commentRepository.getCommentsByPostOrderById(postService.responseDtoToEntity(postResponseDTO));
+        List<Comment> result = commentRepository.getCommentsByPostOrderById(Post.builder().id(postId).build());
         return result.stream().map(this::entityToDTO).collect(Collectors.toList());
     }
 

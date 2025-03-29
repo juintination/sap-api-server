@@ -32,8 +32,6 @@ public interface PostService {
 
     Post dtoToEntity(PostCreateRequestDTO postDTO);
 
-    Post responseDtoToEntity(PostResponseDTO postResponseDTO);
-
     default PostResponseDTO entityToDTO(Post post, Member writer, Long commentCount) {
         return PostResponseDTO.builder()
                 .id(post.getId())
